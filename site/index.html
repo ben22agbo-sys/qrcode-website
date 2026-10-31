@@ -1,0 +1,1160 @@
+<title>Quietzone</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A completely free QR code generator. Add your colours and logo, then download a print-ready SVG or PNG. No watermarks and nothing to pay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;800&display=swap">
+<style>
+  /* Layout: a compact intro band, then the live generator as the hero (controls | preview),
+     followed by a datasheet-style spec table, a short how-to, and plain FAQs. */
+  :root {
+    --paper: #f1f2ee;
+    --surface: #ffffff;
+    --field: #f8f9f6;
+    --ink: #121513;
+    --muted: #5b625d;
+    --line: #d8dbd5;
+    --accent: #2b35d6;
+    --accent-ink: #ffffff;
+    --signal: #f2392c;
+    --danger: #c2342a;
+    --grid: rgba(18, 21, 19, 0.06);
+
+    --display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --body: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Martian Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    --radius: 14px;
+    --wrap: 1160px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0e100f; --surface: #171a18; --field: #121513; --ink: #edefea; --muted: #9ba29d;
+      --line: #2b302c; --accent: #8c94ff; --accent-ink: #0e100f; --signal: #ff5a4e; --danger: #ff7a6e;
+      --grid: rgba(237, 239, 234, 0.05);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0e100f; --surface: #171a18; --field: #121513; --ink: #edefea; --muted: #9ba29d;
+    --line: #2b302c; --accent: #8c94ff; --accent-ink: #0e100f; --signal: #ff5a4e; --danger: #ff7a6e;
+    --grid: rgba(237, 239, 234, 0.05);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font: 400 16px/1.55 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+  .wrap {
+    max-width: var(--wrap); margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .mono { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.02em; }
+  .eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+
+  /* Header */
+  .site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .site-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; text-decoration: none; }
+  .brand svg { width: 22px; height: 22px; fill: var(--ink); }
+  .site-nav { display: flex; gap: 22px; font-size: 0.92rem; }
+  .site-nav a { text-decoration: none; color: var(--muted); }
+  .site-nav a:hover { color: var(--ink); }
+  @media (max-width: 520px) { .site-nav { display: none; } }
+
+  /* Intro */
+  .intro .wrap { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: end; padding-block: 56px 28px; }
+  .intro h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.3rem, 5.4vw, 4.2rem); line-height: 0.98; letter-spacing: -0.035em; margin: 10px 0 0; text-wrap: balance; }
+  .intro h1 em { font-style: normal; background: linear-gradient(transparent 62%, color-mix(in srgb, var(--accent) 28%, transparent) 62%); }
+  .intro p { margin: 0; color: var(--muted); font-size: 1.05rem; max-width: 42ch; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; }
+  .facts span { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 0.72rem; color: var(--ink); }
+  .facts span::before { content: ""; width: 7px; height: 7px; background: var(--ink); }
+  @media (max-width: 820px) { .intro .wrap { grid-template-columns: 1fr; gap: 16px; padding-block: 36px 20px; } }
+
+  /* Tool */
+  .tool { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  @media (max-width: 860px) { .tool { grid-template-columns: 1fr; } .preview-col { order: -1; border-left: 0; border-bottom: 1px solid var(--line); } }
+  .controls { padding: 24px; display: grid; gap: 22px; min-width: 0; }
+  .group { display: grid; gap: 10px; min-width: 0; }
+  .group-label { font-size: 0.82rem; font-weight: 600; color: var(--ink); display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .group-label .value { font-family: var(--mono); font-size: 0.72rem; font-weight: 400; }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0; }
+  .hint.error { color: var(--danger); }
+
+  .tabs { display: flex; gap: 4px; padding: 4px; background: var(--field); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+  .tab { flex: 1; min-width: max-content; border: 0; background: transparent; color: var(--muted); font: 500 0.9rem var(--body); padding: 8px 12px; border-radius: 7px; cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--line); }
+
+  .fields { display: grid; gap: 10px; }
+  .field { display: grid; gap: 5px; min-width: 0; }
+  .field label { font-size: 0.78rem; color: var(--muted); }
+  .two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 460px) { .two-up { grid-template-columns: 1fr; } }
+  input[type=text], input[type=url], input[type=email], input[type=password], textarea, select {
+    width: 100%; font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--field);
+    border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+  select:disabled { opacity: .65; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .choices.two { grid-template-columns: repeat(2, 1fr); }
+  .choice { display: grid; justify-items: center; gap: 5px; padding: 10px 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--muted); font: 500 0.8rem var(--body); cursor: pointer; }
+  .choice svg { width: 26px; height: 26px; fill: currentColor; }
+  .choice:hover { border-color: var(--muted); }
+  .choice[aria-checked="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); background: var(--surface); }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(128,128,128,.45); padding: 0; cursor: pointer; position: relative; }
+  .swatch[aria-checked="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .swatch:disabled { cursor: not-allowed; opacity: .28; }
+  .swatch:disabled::after { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 2px; background: var(--danger); transform: translateX(-50%) rotate(45deg); }
+
+  .drop { border: 1px dashed var(--line); border-radius: 10px; padding: 12px; background: var(--field); transition: border-color .15s; }
+  .drop.dragging { border-color: var(--accent); }
+  .drop-empty { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .drop-filled { display: flex; align-items: center; gap: 10px; }
+  .thumb { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+  .file-name { flex: 1; min-width: 0; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+
+  .btn { font: 600 0.92rem var(--body); border-radius: 10px; padding: 11px 16px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.small { padding: 7px 12px; font-size: 0.82rem; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  details.more { border-top: 1px solid var(--line); padding-top: 16px; }
+  details.more summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  details.more summary::-webkit-details-marker { display: none; }
+  details.more summary::after { content: "+"; font-family: var(--mono); color: var(--muted); }
+  details.more[open] summary::after { content: "−"; }
+  details.more .group { margin-top: 14px; }
+
+  /* Preview */
+  .preview-col {
+    border-left: 1px solid var(--line); padding: 24px; display: grid; gap: 16px; align-content: start; min-width: 0;
+    background-color: var(--field);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+  .stage { position: relative; aspect-ratio: 1; width: 100%; max-width: 360px; justify-self: center; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 18px 40px -24px rgba(0,0,0,.35); background: var(--surface); }
+  .stage svg { width: 100%; height: 100%; display: block; }
+  .stage .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); font-size: 0.9rem; }
+  .scanline { position: absolute; left: 0; right: 0; height: 2px; top: 0; background: var(--signal); box-shadow: 0 0 12px 2px color-mix(in srgb, var(--signal) 60%, transparent); opacity: 0; pointer-events: none; }
+  .scanline.run { animation: scan 0.9s ease-in-out 1; }
+  @keyframes scan { 0% { top: 4%; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { top: 96%; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .scanline.run { animation: none; } }
+
+  .readout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .readout div { padding: 8px 10px; border-right: 1px solid var(--line); min-width: 0; }
+  .readout div:last-child { border-right: 0; }
+  .readout dt { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .readout dd { margin: 2px 0 0; font-family: var(--mono); font-size: 0.82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .readout dt { white-space: nowrap; }
+  @media (max-width: 480px) {
+    .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .readout div:nth-child(2) { border-right: 0; }
+    .readout div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  }
+  .payload { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); word-break: break-all; margin: 0; max-height: 4.6em; overflow: auto; }
+  .payload b { color: var(--ink); font-weight: 500; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .save-note { min-height: 1.2em; }
+
+  /* Sections */
+  section.band { padding-block: 80px 0; }
+  .band-head { display: grid; gap: 10px; max-width: 640px; margin-bottom: 28px; }
+  .band-head h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 3.2vw, 2.4rem); letter-spacing: -0.03em; line-height: 1.05; margin: 0; text-wrap: balance; }
+  .band-head p { margin: 0; color: var(--muted); }
+
+  .spec { overflow-x: auto; border-top: 2px solid var(--ink); }
+  .spec table { width: 100%; border-collapse: collapse; min-width: 520px; }
+  .spec th, .spec td { text-align: left; padding: 14px 12px 14px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .spec th { width: 26%; font-weight: 600; font-size: 0.92rem; }
+  .spec td { color: var(--muted); font-size: 0.95rem; }
+  .spec td .mono { color: var(--ink); font-size: 0.8rem; }
+  @media (max-width: 600px) {
+    .spec table { min-width: 0; }
+    .spec tr { display: grid; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .spec th, .spec td { display: block; width: auto; padding: 0; border: 0; }
+  }
+
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--ink); counter-reset: step; }
+  .step { padding: 20px 24px 8px 0; display: grid; gap: 8px; align-content: start; }
+  .step + .step { padding-left: 24px; border-left: 1px solid var(--line); }
+  .step .num { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+  .step h3 { margin: 0; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .step p { margin: 0; color: var(--muted); max-width: 34ch; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } .step + .step { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
+
+  .faq { border-top: 2px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--line); padding: 18px 0; }
+  .faq summary { cursor: pointer; font-weight: 600; font-size: 1.02rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-family: var(--mono); color: var(--muted); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq p { margin: 10px 0 0; color: var(--muted); max-width: 65ch; }
+
+  /* Header account */
+  .head-right { display: flex; align-items: center; gap: 22px; min-width: 0; }
+  .account { display: flex; align-items: center; min-width: 0; }
+  .account-in { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .account-email { font-size: 0.85rem; color: var(--muted); max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 520px) { .account-email { display: none; } }
+
+  /* Free emphasis */
+  .free-word { color: var(--accent); }
+  .price { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: start; border-top: 2px solid var(--ink); padding-top: 28px; }
+  .price-figure { font-family: var(--display); font-weight: 800; font-size: clamp(5rem, 12vw, 8.5rem); line-height: 0.85; letter-spacing: -0.06em; margin-top: 12px; }
+  .price-figure .currency { font-size: 0.42em; vertical-align: top; letter-spacing: 0; margin-right: 4px; color: var(--muted); }
+  .price-sub { margin: 14px 0 0; color: var(--muted); max-width: 30ch; }
+  .price-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .price-list li { display: flex; gap: 12px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); font-weight: 500; }
+  .price-list li::before { content: ""; flex: none; width: 8px; height: 8px; background: var(--accent); transform: translateY(-1px); }
+  .price-why { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .price-why h3 { margin: 0 0 6px; font-size: 1rem; }
+  .price-why p { margin: 0; color: var(--muted); font-size: 0.93rem; }
+  @media (max-width: 860px) { .price { grid-template-columns: 1fr; gap: 20px; } }
+
+  /* Sign-in dialog */
+  dialog.auth { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); border: 1px solid var(--line); border-radius: 18px; padding: 0; background: var(--surface); color: var(--ink); box-shadow: 0 30px 80px -30px rgba(0,0,0,.5); }
+  dialog.auth::backdrop { background: rgba(10, 12, 11, 0.55); backdrop-filter: blur(2px); }
+  .auth-close-form { position: absolute; top: 10px; right: 10px; margin: 0; }
+  .auth-close { width: 34px; height: 34px; border-radius: 8px; border: 0; background: transparent; color: var(--muted); font-size: 1.4rem; line-height: 1; cursor: pointer; }
+  .auth-close:hover { background: var(--field); color: var(--ink); }
+  .auth-body { padding: 28px 24px 24px; display: grid; gap: 14px; }
+  .auth-body h2 { margin: 0; font-size: 1.45rem; letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; padding-right: 24px; }
+  .auth-sub { margin: 0; color: var(--muted); font-size: 0.93rem; }
+  .auth-notice { font-size: 0.85rem; padding: 10px 12px; border-radius: 9px; background: var(--field); border: 1px solid var(--line); }
+  .btn.google { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn.google svg { width: 18px; height: 18px; }
+  .auth-or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 0.8rem; }
+  .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .auth-email { display: grid; gap: 8px; margin: 0; }
+  .auth-email label { font-size: 0.78rem; color: var(--muted); }
+  .auth-fine { margin: 0; font-size: 0.78rem; color: var(--muted); }
+  .ready-banner { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
+
+  .site-foot { margin-top: 96px; border-top: 1px solid var(--line); }
+  .site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 28px 40px; color: var(--muted); font-size: 0.85rem; }
+</style>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Quietzone home">
+      <svg viewBox="0 0 7 7" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2z"/></svg>
+      Quietzone
+    </a>
+    <div class="head-right">
+      <nav class="site-nav" aria-label="Sections">
+        <a href="#free">Pricing</a>
+        <a href="#spec">What makes it scan</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="account" id="account">
+        <button type="button" class="btn ghost small" id="signin-btn">Sign in</button>
+        <div class="account-in" id="account-in" hidden>
+          <span class="account-email" id="account-email"></span>
+          <button type="button" class="btn ghost small" id="signout-btn">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="intro">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">100% free QR code generator</span>
+        <h1><span class="free-word">Free</span> QR codes that still scan after you <em>make them yours</em>.</h1>
+      </div>
+      <div>
+        <p>Add your colours and logo, then download a print-ready SVG or PNG. No watermarks and nothing to pay. You just need a free account to download.</p>
+        <div class="facts" aria-label="Key facts">
+          <span>Free, no card needed</span>
+          <span>No watermarks</span>
+          <span>Unlimited codes</span>
+          <span>Never expire</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="tool" id="generator">
+      <div class="controls">
+        <div class="group">
+          <div class="tabs" role="tablist" aria-label="What should the code open?" id="tabs">
+            <button class="tab" role="tab" id="tab-link" aria-selected="true" aria-controls="panel-link" type="button">Link</button>
+            <button class="tab" role="tab" id="tab-text" aria-selected="false" aria-controls="panel-text" type="button">Text</button>
+            <button class="tab" role="tab" id="tab-wifi" aria-selected="false" aria-controls="panel-wifi" type="button">Wi-Fi</button>
+            <button class="tab" role="tab" id="tab-email" aria-selected="false" aria-controls="panel-email" type="button">Email</button>
+          </div>
+
+          <div class="fields" role="tabpanel" id="panel-link" aria-labelledby="tab-link">
+            <div class="field">
+              <label for="in-link">Website address</label>
+              <input type="url" id="in-link" value="https://example.com/menu" placeholder="https://yourwebsite.com" autocomplete="url" spellcheck="false">
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden>
+            <div class="field">
+              <label for="in-text">Text</label>
+              <textarea id="in-text" placeholder="Any text, up to about 1,200 characters with a logo">Table 12 · Scan to order</textarea>
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-wifi" aria-labelledby="tab-wifi" hidden>
+            <div class="two-up">
+              <div class="field">
+                <label for="in-ssid">Network name</label>
+                <input type="text" id="in-ssid" value="Cafe Guest" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="in-wifi-pass">Password</label>
+                <input type="text" id="in-wifi-pass" value="flatwhite2026" spellcheck="false" autocomplete="off">
+              </div>
+            </div>
+            <div class="two-up">
+              <div class="field">
+                <label for="in-wifi-sec">Security</label>
+                <select id="in-wifi-sec">
+                  <option value="WPA" selected>WPA / WPA2 / WPA3</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">No password</option>
+                </select>
+              </div>
+              <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="in-wifi-hidden"> Hidden network</label>
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-email" aria-labelledby="tab-email" hidden>
+            <div class="field">
+              <label for="in-email-to">Send to</label>
+              <input type="email" id="in-email-to" value="hello@example.com" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="in-email-subject">Subject</label>
+              <input type="text" id="in-email-subject" value="Booking enquiry">
+            </div>
+            <div class="field">
+              <label for="in-email-body">Message</label>
+              <textarea id="in-email-body" style="min-height:70px">Hi, I'd like to book a table for</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="style-label">Pattern</div>
+          <div class="choices" id="style" role="radiogroup" aria-labelledby="style-label"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="fg-label">Code colour</div>
+          <div class="swatches" id="fg" role="radiogroup" aria-labelledby="fg-label"></div>
+          <div class="group-label" id="bg-label" style="margin-top:6px">Background</div>
+          <div class="swatches" id="bg" role="radiogroup" aria-labelledby="bg-label"></div>
+          <p class="hint">Crossed-out colours are too close to your other choice for phones to read.</p>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="logo-label">Logo <span class="value">optional</span></div>
+          <input type="file" id="logo-file" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+          <div class="drop" id="logo-drop" aria-labelledby="logo-label">
+            <div class="drop-empty" id="logo-empty">
+              <button type="button" class="btn ghost small" id="logo-add">Upload logo</button>
+              <span class="hint">or drop an image here. PNG, JPG, SVG or WebP, up to 2 MB.</span>
+            </div>
+            <div class="drop-filled" id="logo-filled" hidden>
+              <img class="thumb" id="logo-thumb" alt="">
+              <span class="file-name" id="logo-name"></span>
+              <button type="button" class="btn ghost small" id="logo-replace">Replace</button>
+              <button type="button" class="btn ghost small" id="logo-remove">Remove</button>
+            </div>
+          </div>
+          <p class="hint error" id="logo-error" hidden></p>
+          <div id="logo-controls" class="group" hidden>
+            <label class="group-label" for="logo-size">Logo size <span class="value" id="logo-size-val">20%</span></label>
+            <input type="range" id="logo-size" min="10" max="25" step="1" value="20">
+            <div class="group-label" id="shape-label">Space around logo</div>
+            <div class="choices two" id="logo-shape" role="radiogroup" aria-labelledby="shape-label"></div>
+          </div>
+        </div>
+
+        <details class="more" id="advanced">
+          <summary>Error correction</summary>
+          <div class="group">
+            <select id="ecl" aria-label="Error correction level">
+              <option value="L">Low · recovers 7% damage, smallest code</option>
+              <option value="M" selected>Medium · recovers 15%, good default</option>
+              <option value="Q">Quartile · recovers 25%</option>
+              <option value="H">High · recovers 30%, toughest</option>
+            </select>
+            <p class="hint" id="ecl-note">Higher levels survive scuffs and dirt but make a denser code.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="preview-col" aria-live="polite">
+        <div class="stage" id="stage">
+          <div id="preview"></div>
+          <div class="empty" id="preview-empty" hidden></div>
+          <div class="scanline" id="scanline"></div>
+        </div>
+        <dl class="readout" aria-label="Code details">
+          <div><dt>Version</dt><dd id="r-version">-</dd></div>
+          <div><dt>Grid</dt><dd id="r-grid">-</dd></div>
+          <div><dt>Recovery</dt><dd id="r-ecl">-</dd></div>
+          <div><dt>Quiet zone</dt><dd>4</dd></div>
+        </dl>
+        <p class="payload" id="payload"></p>
+        <div class="ready-banner" id="ready" role="status" hidden></div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="dl-svg">Download SVG</button>
+          <button type="button" class="btn" id="dl-png">Download PNG</button>
+        </div>
+        <p class="hint save-note" id="save-note">Free to download with a free account. SVG stays sharp at any print size.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="free">
+    <div class="wrap">
+      <div class="price">
+        <div class="price-main">
+          <span class="eyebrow">Pricing</span>
+          <div class="price-figure"><span class="currency">£</span>0</div>
+          <p class="price-sub">Every feature, for everyone. No trial, no premium tier and no card details.</p>
+        </div>
+        <ul class="price-list">
+          <li>Unlimited QR codes</li>
+          <li>Every pattern, colour and logo option</li>
+          <li>SVG and PNG downloads</li>
+          <li>No watermarks on your codes</li>
+          <li>Codes that never expire</li>
+        </ul>
+        <div class="price-why">
+          <h3>Why ask for an account?</h3>
+          <p>It stays free either way. A free account helps us stop the tool being used to make scam codes, which keeps it free for everyone else.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="spec">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">Spec sheet</span>
+        <h2>Styled codes break when the rules are ignored. These are ours.</h2>
+        <p>Every limit below comes from scanning test codes with two different decoders, including blurry, low-resolution copies made to look like a phone camera.</p>
+      </div>
+      <div class="spec">
+        <table>
+          <tbody>
+            <tr><th scope="row">Standard</th><td><span class="mono">ISO/IEC 18004</span> QR Code Model 2, the format every phone camera reads.</td></tr>
+            <tr><th scope="row">Sizes</th><td>Versions 1 to 40, from <span class="mono">21×21</span> to <span class="mono">177×177</span> modules. The smallest size that fits your content is picked for you.</td></tr>
+            <tr><th scope="row">Error correction</th><td>Low <span class="mono">7%</span>, Medium <span class="mono">15%</span>, Quartile <span class="mono">25%</span>, High <span class="mono">30%</span>. The percentage is how much of the code can be lost and still read.</td></tr>
+            <tr><th scope="row">Logos</th><td>Up to <span class="mono">25%</span> of the code width. Adding a logo switches error correction to High, because lower levels failed in testing.</td></tr>
+            <tr><th scope="row">Colour contrast</th><td>Colour pairs below a <span class="mono">3:1</span> contrast ratio are blocked, so the code always stands out from its background.</td></tr>
+            <tr><th scope="row">Quiet zone</th><td>A clear border <span class="mono">4</span> modules wide on every side, as the standard asks. Scanners use it to find where the code starts.</td></tr>
+            <tr><th scope="row">Text</th><td>Full UTF-8, so accents, other alphabets and emoji all work. Digits-only content is packed more tightly for a smaller code.</td></tr>
+            <tr><th scope="row">Files</th><td>SVG for print at any size, or a 1200 px PNG for screens and documents.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">How it works</span>
+        <h2>From link to printed code in under a minute.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="num">Step 1</span>
+          <h3>Add what it should open</h3>
+          <p>A website, some text, your Wi-Fi details or a ready-written email. The code updates as you type.</p>
+        </div>
+        <div class="step">
+          <span class="num">Step 2</span>
+          <h3>Make it look like you</h3>
+          <p>Pick a pattern and colours, and drop in your logo. Choices that would stop it scanning are blocked.</p>
+        </div>
+        <div class="step">
+          <span class="num">Step 3</span>
+          <h3>Download and use it</h3>
+          <p>Sign in free, then take the SVG to your printer or drop the PNG into a slide, menu or email.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Before you print a thousand menus.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is it really free?</summary>
+          <p>Yes. Every feature is free, with no limit on how many codes you make and no watermark on them. There is no paid version and we never ask for card details.</p>
+        </details>
+        <details>
+          <summary>Do I need an account?</summary>
+          <p>You can make and style codes without one. To download, you need a free account. Sign in with Google or with a link sent to your email, so there is no password to remember.</p>
+        </details>
+        <details>
+          <summary>Will my QR code ever stop working?</summary>
+          <p>No. The content is stored inside the pattern itself, so there is no server or account that can expire. As long as the link it points to stays live, the code keeps working.</p>
+        </details>
+        <details>
+          <summary>Can I change where the code points after printing?</summary>
+          <p>Not with these codes. Because the content is inside the pattern, changing it means making a new code. If you might change the destination, point the code at a page on your own website that you can update later.</p>
+        </details>
+        <details>
+          <summary>How small can I print it?</summary>
+          <p>Keep it at least 2 cm wide for scanning up close. For scanning from further away, a common rule is that the code should be about one tenth of the scanning distance, so a poster read from 2 m needs a code around 20 cm wide. Shorter content makes a simpler code that prints smaller.</p>
+        </details>
+        <details>
+          <summary>Is my information sent anywhere?</summary>
+          <p>Your codes are made by your own browser, so your content and logo never leave your device. For your account, we only store your email address.</p>
+        </details>
+        <details>
+          <summary>Why is error correction locked when I add a logo?</summary>
+          <p>A logo covers part of the code, so the code needs spare data to rebuild what is hidden. High error correction gives the most spare data. In testing, lower levels started failing with larger logos.</p>
+        </details>
+        <details>
+          <summary>Should I test the code before printing?</summary>
+          <p>Yes, always. Scan the downloaded file with two or three different phones, ideally from the distance people will actually use, before sending anything to print.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Quietzone · Free QR codes, made in your browser.</span>
+    <span>QR Code is a registered trademark of DENSO WAVE INCORPORATED.</span>
+  </div>
+</footer>
+
+<dialog class="auth" id="auth" aria-labelledby="auth-title">
+  <form method="dialog" class="auth-close-form"><button class="auth-close" aria-label="Close" value="cancel">×</button></form>
+  <div class="auth-body" id="auth-form-view">
+    <span class="eyebrow">Free account</span>
+    <h2 id="auth-title">Create your free account to download</h2>
+    <p class="auth-sub">It costs nothing, now or later. Your code stays exactly as you made it while you sign in.</p>
+    <div class="auth-notice" id="auth-notice" hidden></div>
+    <button type="button" class="btn google" id="google-btn">
+      <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-or"><span>or</span></div>
+    <form class="auth-email" id="email-form" novalidate>
+      <label for="auth-email-input">Email address</label>
+      <input type="email" id="auth-email-input" placeholder="you@example.com" autocomplete="email" required>
+      <button type="submit" class="btn primary" id="email-btn">Email me a sign-in link</button>
+    </form>
+    <p class="hint error" id="auth-error" hidden></p>
+    <p class="auth-fine">No password needed. We only store your email address.</p>
+  </div>
+  <div class="auth-body" id="auth-sent-view" hidden>
+    <span class="eyebrow">Check your inbox</span>
+    <h2>Your sign-in link is on its way</h2>
+    <p class="auth-sub">We sent it to <b id="auth-sent-to"></b>. Open it on this device and your code will be here, ready to download.</p>
+    <button type="button" class="btn ghost" id="auth-back">Use a different email</button>
+  </div>
+</dialog>
+
+<!-- Supabase handles sign-in. Pinned version, loaded before the page script. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="qr.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let code = null;
+  let payload = '';
+
+  /* ---------------- Content types ---------------- */
+  const TABS = ['link', 'text', 'wifi', 'email'];
+  let activeTab = 'link';
+
+  function selectTab(name, focus) {
+    activeTab = name;
+    for (const t of TABS) {
+      const on = t === name;
+      $('tab-' + t).setAttribute('aria-selected', String(on));
+      $('tab-' + t).tabIndex = on ? 0 : -1;
+      $('panel-' + t).hidden = !on;
+    }
+    if (focus) $('tab-' + name).focus();
+    render();
+  }
+  TABS.forEach((t, i) => {
+    $('tab-' + t).addEventListener('click', () => selectTab(t));
+    $('tab-' + t).addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const next = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length];
+        selectTab(next, true);
+      }
+    });
+  });
+
+  // Wi-Fi fields escape \ ; , : and " with a backslash.
+  const wifiEscape = (s) => s.replace(/([\\;,:"])/g, '\\$1');
+
+  function buildPayload() {
+    if (activeTab === 'link') {
+      let v = $('in-link').value.trim();
+      // Add https:// when someone types a bare domain like example.com/menu
+      if (v && !/^[a-z][a-z0-9+.-]*:/i.test(v) && /^[\w-]+(\.[\w-]+)+/.test(v)) v = 'https://' + v;
+      return v;
+    }
+    if (activeTab === 'text') return $('in-text').value;
+    if (activeTab === 'wifi') {
+      const ssid = $('in-ssid').value;
+      if (!ssid) return '';
+      const sec = $('in-wifi-sec').value;
+      const pass = $('in-wifi-pass').value;
+      let s = 'WIFI:T:' + sec + ';S:' + wifiEscape(ssid) + ';';
+      if (sec !== 'nopass') s += 'P:' + wifiEscape(pass) + ';';
+      if ($('in-wifi-hidden').checked) s += 'H:true;';
+      return s + ';';
+    }
+    const to = $('in-email-to').value.trim();
+    if (!to) return '';
+    const params = [];
+    const subject = $('in-email-subject').value, body = $('in-email-body').value;
+    if (subject) params.push('subject=' + encodeURIComponent(subject));
+    if (body) params.push('body=' + encodeURIComponent(body));
+    return 'mailto:' + to + (params.length ? '?' + params.join('&') : '');
+  }
+
+  function emptyMessage() {
+    return {
+      link: 'Type a website address to make your code.',
+      text: 'Type some text to make your code.',
+      wifi: 'Add your network name to make your code.',
+      email: 'Add an email address to make your code.',
+    }[activeTab];
+  }
+
+  /* ---------------- Pattern ---------------- */
+  const STYLES = [['square', 'Square'], ['rounded', 'Rounded'], ['dots', 'Dots']];
+  const SAMPLE = ['1101', '0110', '1011', '1110'];
+  let moduleStyle = 'square';
+
+  function styleIcon(style) {
+    let shapes = '';
+    SAMPLE.forEach((row, y) => [...row].forEach((c, x) => {
+      if (c !== '1') return;
+      if (style === 'dots') shapes += '<circle cx="' + (x + 0.5) + '" cy="' + (y + 0.5) + '" r="0.42"/>';
+      else if (style === 'rounded') shapes += '<rect x="' + (x + 0.04) + '" y="' + (y + 0.04) + '" width="0.92" height="0.92" rx="0.2"/>';
+      else shapes += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+    }));
+    return '<svg viewBox="0 0 4 4" aria-hidden="true">' + shapes + '</svg>';
+  }
+
+  function radioGroup(container, items, current, iconFor, onPick) {
+    container.innerHTML = '';
+    for (const [value, label] of items) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice';
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(value === current));
+      b.innerHTML = iconFor(value) + '<span>' + label + '</span>';
+      b.addEventListener('click', () => onPick(value));
+      container.appendChild(b);
+    }
+  }
+  function buildStyles() {
+    radioGroup($('style'), STYLES, moduleStyle, styleIcon, (v) => { moduleStyle = v; buildStyles(); render(); });
+  }
+
+  /* ---------------- Colours ---------------- */
+  const PALETTE = [
+    ['Black', '#000000'], ['Charcoal', '#2b2b2b'], ['Navy', '#1e3a8a'], ['Blue', '#2563eb'],
+    ['Forest', '#166534'], ['Purple', '#6b21a8'], ['Red', '#b91c1c'], ['Orange', '#ea580c'],
+    ['Yellow', '#facc15'], ['Light grey', '#e5e7eb'], ['Cream', '#fdf6e3'], ['White', '#ffffff'],
+  ];
+  const MIN_CONTRAST = 3;
+  const colours = { fg: '#000000', bg: '#ffffff' };
+
+  function luminance(hex) {
+    const c = [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function contrast(a, b) {
+    const l1 = luminance(a), l2 = luminance(b);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+  function buildSwatches(which) {
+    const other = which === 'fg' ? 'bg' : 'fg';
+    const el = $(which);
+    el.innerHTML = '';
+    for (const [name, hex] of PALETTE) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'swatch';
+      b.style.background = hex;
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(colours[which] === hex));
+      const blocked = contrast(hex, colours[other]) < MIN_CONTRAST;
+      b.disabled = blocked;
+      b.title = blocked ? name + ' (too close to the ' + (other === 'bg' ? 'background' : 'code colour') + ')' : name;
+      b.setAttribute('aria-label', b.title);
+      b.addEventListener('click', () => {
+        colours[which] = hex;
+        buildSwatches('fg');
+        buildSwatches('bg');
+        render();
+      });
+      el.appendChild(b);
+    }
+  }
+
+  /* ---------------- Logo ---------------- */
+  let logo = null;
+  let logoShape = 'square';
+  let eclBeforeLogo = 'M';
+  const MAX_FILE = 2 * 1024 * 1024;
+  const MAX_RASTER = 512;
+  const SHAPE_ICONS = {
+    square: '<svg viewBox="0 0 4 4" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h4v4H0zM.8.8v2.4h2.4V.8z"/></svg>',
+    circle: '<svg viewBox="0 0 4 4" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h4v4H0zM2 .7a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6z"/></svg>',
+  };
+  function buildShapes() {
+    radioGroup($('logo-shape'), [['square', 'Square'], ['circle', 'Circle']], logoShape,
+      (v) => SHAPE_ICONS[v], (v) => { logoShape = v; buildShapes(); render(); });
+  }
+
+  function readAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function setLogo(file) {
+    const err = $('logo-error');
+    err.hidden = true;
+    const fail = (msg) => { err.textContent = msg; err.hidden = false; };
+    if (!file) return;
+    if (!/^image\/(png|jpeg|svg\+xml|webp)$/.test(file.type)) return fail('Please use a PNG, JPG, SVG or WebP image.');
+    if (file.size > MAX_FILE) return fail('That image is over 2 MB. Please use a smaller file.');
+    try {
+      let src = await readAsDataURL(file);
+      let image = await QR.loadImage(src);
+      const w = image.naturalWidth, h = image.naturalHeight;
+      if (file.type !== 'image/svg+xml' && Math.max(w, h) > MAX_RASTER) {
+        const k = MAX_RASTER / Math.max(w, h);
+        const c = document.createElement('canvas');
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(image, 0, 0, c.width, c.height);
+        src = c.toDataURL('image/png');
+        image = await QR.loadImage(src);
+      }
+      if (!logo) eclBeforeLogo = $('ecl').value;
+      logo = { src, image, name: file.name };
+      updateLogoUI();
+      render();
+    } catch (e) {
+      fail('That image could not be opened. Try another file.');
+    }
+  }
+
+  function removeLogo() {
+    logo = null;
+    $('logo-file').value = '';
+    $('ecl').value = eclBeforeLogo;
+    updateLogoUI();
+    render();
+  }
+
+  function updateLogoUI() {
+    const on = !!logo;
+    $('logo-empty').hidden = on;
+    $('logo-filled').hidden = !on;
+    $('logo-controls').hidden = !on;
+    $('ecl').disabled = on;
+    $('ecl-note').textContent = on
+      ? 'Locked to High while a logo is added, so the code still scans.'
+      : 'Higher levels survive scuffs and dirt but make a denser code.';
+    if (on) {
+      $('ecl').value = 'H';
+      $('logo-thumb').src = logo.src;
+      $('logo-name').textContent = logo.name;
+    }
+  }
+
+  $('logo-add').addEventListener('click', () => $('logo-file').click());
+  $('logo-replace').addEventListener('click', () => $('logo-file').click());
+  $('logo-remove').addEventListener('click', removeLogo);
+  $('logo-file').addEventListener('change', (e) => setLogo(e.target.files[0]));
+  const drop = $('logo-drop');
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragging'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('dragging'));
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    drop.classList.remove('dragging');
+    setLogo(e.dataTransfer.files[0]);
+  });
+
+  /* ---------------- Render ---------------- */
+  const ECL_NAMES = { L: 'Low 7%', M: 'Med 15%', Q: 'Quart 25%', H: 'High 30%' };
+
+  function renderOptions() {
+    return {
+      style: moduleStyle,
+      foreground: colours.fg,
+      background: colours.bg,
+      logo: logo && { src: logo.src, image: logo.image, size: $('logo-size').value / 100, shape: logoShape },
+    };
+  }
+
+  function setReadout(c) {
+    $('r-version').textContent = c ? c.version : '-';
+    $('r-grid').textContent = c ? c.size + '×' + c.size : '-';
+    $('r-ecl').textContent = c ? ECL_NAMES[c.ecl] : '-';
+  }
+
+  function showEmpty(msg) {
+    code = null;
+    $('preview').innerHTML = '';
+    $('preview-empty').textContent = msg;
+    $('preview-empty').hidden = false;
+    $('dl-svg').disabled = $('dl-png').disabled = true;
+    setReadout(null);
+  }
+
+  let lastPayload = null;
+  function render() {
+    $('logo-size-val').textContent = $('logo-size').value + '%';
+    payload = buildPayload();
+    $('payload').innerHTML = '';
+    if (payload) {
+      const b = document.createElement('b');
+      b.textContent = 'Encodes ';
+      $('payload').append(b, document.createTextNode(payload));
+    }
+    if (!payload) return showEmpty(emptyMessage());
+    try {
+      code = QR.encode(payload, { ecl: logo ? 'H' : $('ecl').value });
+    } catch (e) {
+      return showEmpty(e.code === 'DATA_TOO_LONG'
+        ? (logo ? 'Too much content to fit with a logo. Shorten it or remove the logo.'
+                : 'Too much content for one QR code. Shorten it or lower the error correction.')
+        : 'Something went wrong making this code. Try changing the content.');
+    }
+    $('preview-empty').hidden = true;
+    $('preview').innerHTML = QR.toSVG(code, renderOptions());
+    $('dl-svg').disabled = $('dl-png').disabled = false;
+    setReadout(code);
+    // Sweep the scan line when the content itself changes.
+    if (payload !== lastPayload) {
+      const s = $('scanline');
+      s.classList.remove('run');
+      void s.offsetWidth;
+      s.classList.add('run');
+      lastPayload = payload;
+    }
+  }
+
+  ['in-link', 'in-text', 'in-ssid', 'in-wifi-pass', 'in-wifi-sec', 'in-wifi-hidden',
+   'in-email-to', 'in-email-subject', 'in-email-body', 'ecl', 'logo-size']
+    .forEach((id) => $(id).addEventListener('input', render));
+
+  /* ---------------- Downloads ---------------- */
+  // Inside Claude's preview, page-started downloads are blocked, so use the
+  // viewer's save prompt there. On a normal website, use a regular download.
+  const framed = !!(window.claude && typeof window.claude.use === 'function');
+  const downloadsReady = framed ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+
+  function fileBase() {
+    const words = {
+      link: 'qr-link', text: 'qr-text', wifi: 'qr-wifi', email: 'qr-email',
+    };
+    return words[activeTab] || 'qr-code';
+  }
+
+  function note(msg, isError) {
+    $('save-note').textContent = msg;
+    $('save-note').classList.toggle('error', !!isError);
+  }
+
+  async function saveFile(blob, filename) {
+    const dl = await downloadsReady;
+    if (dl) {
+      try {
+        await dl.save({ filename, data: blob });
+        note('Saved ' + filename + '.');
+      } catch (e) {
+        if (e && e.code === 'declined') note('Download cancelled.');
+        else if (e && e.code === 'rate_limited') note('A save is already waiting for you. Finish that one first.', true);
+        else note('Downloads are not available in this view. Open the page in a browser to save.', true);
+      }
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    note('Downloaded ' + filename + '.');
+  }
+
+  function downloadSVG() {
+    if (!code) return;
+    const svg = QR.toSVG(code, renderOptions());
+    saveFile(new Blob([svg], { type: 'image/svg+xml' }), fileBase() + '.svg');
+  }
+
+  function downloadPNG() {
+    if (!code) return;
+    const scale = Math.ceil(1200 / (code.size + 8));
+    const canvas = QR.toCanvas(code, document.createElement('canvas'), Object.assign(renderOptions(), { scale }));
+    canvas.toBlob((blob) => {
+      if (blob) saveFile(blob, fileBase() + '.png');
+      else note('Could not make the PNG. Try the SVG instead.', true);
+    }, 'image/png');
+  }
+  const DOWNLOADERS = { svg: downloadSVG, png: downloadPNG };
+
+  /* ---------------- Accounts (Supabase) ---------------- */
+  // Fill these in from your Supabase project: Project Settings > API.
+  // The anon (public) key is designed to be used in web pages, so it is safe here.
+  const AUTH_CONFIG = {
+    supabaseUrl: 'YOUR_SUPABASE_URL',          // looks like https://abcdefgh.supabase.co
+    supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
+  };
+
+  const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(AUTH_CONFIG.supabaseUrl) &&
+    !/^YOUR_/.test(AUTH_CONFIG.supabaseAnonKey);
+  let sb = null;
+  if (configured && !framed && window.supabase && typeof window.supabase.createClient === 'function') {
+    try { sb = window.supabase.createClient(AUTH_CONFIG.supabaseUrl, AUTH_CONFIG.supabaseAnonKey); } catch (e) { sb = null; }
+  }
+  // Downloads stay open only while sign-in is not set up, or in Claude's preview.
+  // Once configured on the live site, an account is required.
+  const openMode = framed || !configured;
+  let user = null;
+  let pending = null;
+
+  const DRAFT_KEY = 'quietzone-draft';
+  const DRAFT_MAX_AGE = 60 * 60 * 1000; // an hour is plenty to finish signing in
+  const DRAFT_FIELDS = ['in-link', 'in-text', 'in-ssid', 'in-wifi-pass', 'in-wifi-sec',
+    'in-email-to', 'in-email-subject', 'in-email-body', 'logo-size', 'ecl'];
+
+  function saveDraft(kind) {
+    const state = {
+      t: Date.now(), kind, tab: activeTab, style: moduleStyle, colours: Object.assign({}, colours),
+      shape: logoShape, hidden: $('in-wifi-hidden').checked, ecl: logo ? eclBeforeLogo : $('ecl').value,
+      fields: {}, logo: logo ? { src: logo.src, name: logo.name } : null,
+    };
+    DRAFT_FIELDS.forEach((id) => { state.fields[id] = $(id).value; });
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    } catch (e) {
+      // Storage full or blocked: try again without the logo, then give up quietly.
+      try { state.logo = null; localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch (e2) { /* ignore */ }
+    }
+  }
+
+  function readDraft() {
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (d && Date.now() - d.t < DRAFT_MAX_AGE) return d;
+      localStorage.removeItem(DRAFT_KEY);
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
+
+  async function applyDraft(d) {
+    DRAFT_FIELDS.forEach((id) => { if (d.fields && id in d.fields) $(id).value = d.fields[id]; });
+    $('in-wifi-hidden').checked = !!d.hidden;
+    moduleStyle = d.style || moduleStyle;
+    if (d.colours) Object.assign(colours, d.colours);
+    logoShape = d.shape || logoShape;
+    buildStyles(); buildShapes(); buildSwatches('fg'); buildSwatches('bg');
+    if (d.logo) {
+      try {
+        const image = await QR.loadImage(d.logo.src);
+        eclBeforeLogo = d.ecl || 'M';
+        logo = { src: d.logo.src, image, name: d.logo.name };
+        updateLogoUI();
+      } catch (e) { /* logo could not be restored, carry on without it */ }
+    }
+    selectTab(TABS.indexOf(d.tab) >= 0 ? d.tab : 'link');
+  }
+
+  function showReady(kind) {
+    const r = $('ready');
+    r.textContent = "You're signed in. Your code is ready, so download it whenever you like.";
+    r.hidden = false;
+    pending = null;
+    if (kind && $('dl-' + kind)) $('dl-' + kind).focus();
+  }
+
+  function updateAccountUI() {
+    const signedIn = !!user;
+    $('signin-btn').hidden = signedIn;
+    $('account-in').hidden = !signedIn;
+    $('account-email').textContent = signedIn ? (user.email || 'Signed in') : '';
+    $('save-note').textContent = signedIn
+      ? 'SVG stays sharp at any print size. PNG is 1200 px wide.'
+      : 'Free to download with a free account. SVG stays sharp at any print size.';
+    $('save-note').classList.remove('error');
+  }
+
+  /* Dialog */
+  function authError(msg) {
+    $('auth-error').textContent = msg || '';
+    $('auth-error').hidden = !msg;
+  }
+
+  function openAuth(kind) {
+    pending = kind || null;
+    authError('');
+    $('auth-form-view').hidden = false;
+    $('auth-sent-view').hidden = true;
+    const n = $('auth-notice');
+    n.innerHTML = '';
+    if (openMode) {
+      n.append(document.createTextNode(framed
+        ? 'This is a preview. Sign-in only works on the live site, so downloads are open here.'
+        : 'Sign-in is not connected yet, so downloads are open for now.'));
+      if (kind) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn small';
+        b.style.marginTop = '10px';
+        b.style.display = 'block';
+        b.textContent = 'Download without an account';
+        b.addEventListener('click', () => { $('auth').close(); DOWNLOADERS[kind](); });
+        n.appendChild(b);
+      }
+      n.hidden = false;
+    } else {
+      n.hidden = true;
+    }
+    $('auth-title').textContent = kind ? 'Create your free account to download' : 'Sign in or create your free account';
+    if (typeof $('auth').showModal === 'function') $('auth').showModal();
+    else $('auth').setAttribute('open', '');
+  }
+
+  function requireAccount(kind) {
+    if (!code) return;
+    if (user) return DOWNLOADERS[kind]();
+    if (configured && !framed && !sb) {
+      return note('Sign-in could not load. Check your connection and refresh the page.', true);
+    }
+    openAuth(kind);
+  }
+
+  function returnUrl() { return location.origin + location.pathname; }
+
+  $('google-btn').addEventListener('click', async () => {
+    authError('');
+    if (!sb) return authError(openMode ? 'Sign-in with Google works once the site is live with sign-in connected.' : 'Sign-in could not load. Refresh the page and try again.');
+    saveDraft(pending);
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: returnUrl() } });
+    if (error) authError('Google sign-in did not start. Try again, or use your email instead.');
+  });
+
+  $('email-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    authError('');
+    const email = $('auth-email-input').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return authError('Enter an email address like name@example.com.');
+    if (!sb) return authError(openMode ? 'Email sign-in works once the site is live with sign-in connected.' : 'Sign-in could not load. Refresh the page and try again.');
+    const btn = $('email-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    saveDraft(pending);
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl(), shouldCreateUser: true } });
+    btn.disabled = false;
+    btn.textContent = 'Email me a sign-in link';
+    if (error) {
+      return authError(/rate|seconds|too many/i.test(error.message)
+        ? 'Too many links sent. Wait a minute, then try again.'
+        : 'We could not send the link. Check the address and try again.');
+    }
+    $('auth-sent-to').textContent = email;
+    $('auth-form-view').hidden = true;
+    $('auth-sent-view').hidden = false;
+  });
+
+  $('auth-back').addEventListener('click', () => {
+    $('auth-sent-view').hidden = true;
+    $('auth-form-view').hidden = false;
+    $('auth-email-input').focus();
+  });
+
+  $('signin-btn').addEventListener('click', () => openAuth(null));
+  $('signout-btn').addEventListener('click', async () => {
+    if (sb) await sb.auth.signOut();
+    user = null;
+    $('ready').hidden = true;
+    updateAccountUI();
+  });
+
+  $('dl-svg').addEventListener('click', () => requireAccount('svg'));
+  $('dl-png').addEventListener('click', () => requireAccount('png'));
+
+  /* ---------------- Start ---------------- */
+  buildStyles();
+  buildShapes();
+  buildSwatches('fg');
+  buildSwatches('bg');
+  selectTab('link');
+  updateAccountUI();
+
+  const draft = readDraft();
+  if (draft) applyDraft(draft);
+
+  if (sb) {
+    sb.auth.onAuthStateChange((event, session) => {
+      user = session ? session.user : null;
+      updateAccountUI();
+      if (user) {
+        const d = readDraft();
+        if (d || pending) {
+          if ($('auth').open) $('auth').close();
+          showReady((d && d.kind) || pending);
+          clearDraft();
+        }
+      }
+    });
+    sb.auth.getSession().then(({ data }) => {
+      user = data && data.session ? data.session.user : null;
+      updateAccountUI();
+    });
+  }
+})();
+</script>

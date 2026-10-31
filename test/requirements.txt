@@ -1,0 +1,4 @@
+qrcode
+zxing-cpp
+pillow
+cairosvg
