@@ -1,8 +1,8 @@
-# Quietzone
+# QR Origin
 
 A free QR code generator. Visitors can make a code for a link, text, Wi-Fi details or an email, style it with colours, patterns and a logo, and download it as SVG or PNG. Codes are made in the visitor's browser, and a free account is needed to download.
 
-"Quietzone" is a working name.
+Live at [qrorigin.net](https://qrorigin.net).
 
 ## What's in here
 
