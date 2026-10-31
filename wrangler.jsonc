@@ -1,0 +1,8 @@
+// Cloudflare settings. Publishes only the site/ folder as a static website.
+{
+  "name": "qrcode-website",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./site"
+  }
+}

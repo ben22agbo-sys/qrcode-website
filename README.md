@@ -30,7 +30,11 @@ Then open http://localhost:8000.
 
 ## Deploy
 
-The `site` folder is the whole website and needs no build step. On Cloudflare Pages, Netlify or Vercel, set the output (publish) directory to `site` and leave the build command empty.
+The `site` folder is the whole website and needs no build step.
+
+The live site runs as a Cloudflare Worker connected to this repo. `wrangler.jsonc` tells Cloudflare to publish only the `site` folder, and every push to `main` deploys automatically.
+
+On Netlify or Vercel instead, set the output (publish) directory to `site` and leave the build command empty.
 
 ## Turn on sign-in
 
