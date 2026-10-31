@@ -120,7 +120,7 @@
     border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px;
   }
   textarea { min-height: 96px; resize: vertical; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+  input:not([type=range]):focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
   select:disabled { opacity: .65; }
   .check { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
   .check input { accent-color: var(--accent); width: 16px; height: 16px; }
@@ -144,7 +144,32 @@
   .drop-filled { display: flex; align-items: center; gap: 10px; }
   .thumb { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
   .file-name { flex: 1; min-width: 0; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+  /* Slider drawn by the page itself, so it is the same size in every browser.
+     Safari's default handle is taller than its box and can get clipped. */
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; display: block;
+    width: 100%; height: 32px; margin: 0; padding: 0 2px; background: transparent; cursor: pointer;
+    --fill: 50%;
+  }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 999px;
+    background: linear-gradient(to right, var(--accent) var(--fill), var(--line) var(--fill));
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; margin-top: -8px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+  }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--line); }
+  input[type=range]::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--accent); }
+  input[type=range]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+  }
+  input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }
+  input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }
 
   .btn { font: 600 0.92rem var(--body); border-radius: 10px; padding: 11px 16px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -995,7 +1020,9 @@
 
   let lastPayload = null;
   function render() {
-    $('logo-size-val').textContent = $('logo-size').value + '%';
+    const slider = $('logo-size');
+    $('logo-size-val').textContent = slider.value + '%';
+    slider.style.setProperty('--fill', ((slider.value - slider.min) / (slider.max - slider.min) * 100) + '%');
     payload = buildPayload();
     $('payload').innerHTML = '';
     if (payload) {
