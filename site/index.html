@@ -168,6 +168,15 @@
   }
   .stage { position: relative; aspect-ratio: 1; width: 100%; max-width: 360px; justify-self: center; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 18px 40px -24px rgba(0,0,0,.35); background: var(--surface); }
   .stage svg { width: 100%; height: 100%; display: block; }
+  .unlock {
+    position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); z-index: 2;
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+    font: 600 0.9rem var(--body); padding: 11px 16px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,.4);
+  }
+  .unlock svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .unlock:hover { border-color: var(--ink); }
   .stage .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); font-size: 0.9rem; }
   .scanline { position: absolute; left: 0; right: 0; height: 2px; top: 0; background: var(--signal); box-shadow: 0 0 12px 2px color-mix(in srgb, var(--signal) 60%, transparent); opacity: 0; pointer-events: none; }
   .scanline.run { animation: scan 0.9s ease-in-out 1; }
@@ -526,6 +535,10 @@
       <div class="preview-col" aria-live="polite">
         <div class="stage" id="stage">
           <div id="preview"></div>
+          <button type="button" class="unlock" id="unlock" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            Sign in free to unlock
+          </button>
           <div class="empty" id="preview-empty" hidden></div>
           <div class="scanline" id="scanline"></div>
         </div>
@@ -1161,7 +1174,50 @@
       ? 'SVG stays sharp at any print size. PNG is 1200 px wide.'
       : 'Free to download with a free account. SVG stays sharp at any print size.';
     $('save-note').classList.remove('error');
+    applyLock();
   }
+
+  /* Blur the code until signed in. Only while sign-in is not set up (or in
+     Claude's preview) can someone choose to view it without an account. */
+  let bypassLock = false;
+  // How much to blur, in modules (the squares a code is made of). In testing,
+  // 0.7 still let some sharpened screenshots scan; 0.85 and 1.0 let none through.
+  const LOCK_BLUR = 1.0;
+
+  // Blurs only the data dots. The corner squares and logo stay sharp so people can
+  // judge their design; they carry no data, so the code still cannot be read.
+  function setSvgLock(container, idSuffix, locked) {
+    const svg = container.querySelector('svg');
+    if (!svg) return;
+    const data = svg.querySelector('path'); // first path = data modules, second = corner squares
+    if (!data) return;
+    const id = 'qr-lock-' + idSuffix;
+    if (!locked) { data.removeAttribute('filter'); return; }
+    if (!svg.querySelector('#' + id)) {
+      const vb = (svg.getAttribute('viewBox') || '0 0 100 100').split(/\s+/).map(Number);
+      const ns = 'http://www.w3.org/2000/svg';
+      const defs = document.createElementNS(ns, 'defs');
+      const f = document.createElementNS(ns, 'filter');
+      f.setAttribute('id', id);
+      f.setAttribute('filterUnits', 'userSpaceOnUse');
+      f.setAttribute('x', vb[0]); f.setAttribute('y', vb[1]);
+      f.setAttribute('width', vb[2]); f.setAttribute('height', vb[3]);
+      const g = document.createElementNS(ns, 'feGaussianBlur');
+      g.setAttribute('stdDeviation', String(LOCK_BLUR));
+      f.appendChild(g); defs.appendChild(f); svg.insertBefore(defs, svg.firstChild);
+    }
+    data.setAttribute('filter', 'url(#' + id + ')');
+  }
+
+  function applyLock() {
+    const locked = !user && !bypassLock;
+    $('stage').classList.toggle('locked', locked && !!code);
+    $('unlock').hidden = !(locked && code);
+    setSvgLock($('preview'), 'stage', locked);
+    setSvgLock($('dock-thumb'), 'dock', locked);
+  }
+  window.addEventListener('resize', applyLock);
+  $('unlock').addEventListener('click', () => openAuth('unlock'));
 
   /* Dialog */
   function authError(msg) {
@@ -1186,15 +1242,20 @@
         b.className = 'btn small';
         b.style.marginTop = '10px';
         b.style.display = 'block';
-        b.textContent = 'Download without an account';
-        b.addEventListener('click', () => { $('auth').close(); DOWNLOADERS[kind](); });
+        b.textContent = kind === 'unlock' ? 'Show the code without an account' : 'Download without an account';
+        b.addEventListener('click', () => {
+          $('auth').close();
+          if (kind === 'unlock') { bypassLock = true; applyLock(); }
+          else DOWNLOADERS[kind]();
+        });
         n.appendChild(b);
       }
       n.hidden = false;
     } else {
       n.hidden = true;
     }
-    $('auth-title').textContent = kind ? 'Create your free account to download' : 'Sign in or create your free account';
+    $('auth-title').textContent = kind === 'unlock' ? 'Create your free account to unlock your code'
+      : kind ? 'Create your free account to download' : 'Sign in or create your free account';
     if (typeof $('auth').showModal === 'function') $('auth').showModal();
     else $('auth').setAttribute('open', '');
   }
@@ -1278,12 +1339,13 @@
   function syncDock() {
     if (!dock) return;
     const thumb = $('dock-thumb');
-    thumb.innerHTML = code ? $('preview').innerHTML : '';
+    thumb.innerHTML = code ? QR.toSVG(code, renderOptions()) : '';
     $('dock-meta').textContent = code ? payload : 'Add content to make a code';
     $('dock-svg').disabled = $('dock-png').disabled = !code;
     const show = !!code && !stageVisible && toolVisible;
     dock.classList.toggle('show', show);
     dock.inert = !show;
+    applyLock();
   }
 
   if ('IntersectionObserver' in window) {
