@@ -247,6 +247,93 @@
   .auth-fine { margin: 0; font-size: 0.78rem; color: var(--muted); }
   .ready-banner { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
 
+  /* ---------- Motion ---------- */
+  /* Load: the opening section rises in once. Scroll: later sections start faint and settle in.
+     Both only run when the viewer has not asked for reduced motion. */
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .enter { animation: rise 0.7s cubic-bezier(.2, .7, .2, 1) both; animation-delay: var(--d, 0s); }
+    .reveal-on .reveal {
+      opacity: 0.15; transform: translateY(22px);
+      transition: opacity 0.7s cubic-bezier(.2, .7, .2, 1) var(--rd, 0s), transform 0.7s cubic-bezier(.2, .7, .2, 1) var(--rd, 0s);
+    }
+    .reveal-on .reveal.in { opacity: 1; transform: none; }
+    .reveal-on .price-figure.reveal { transform: translateY(40px) scale(.96); transform-origin: left bottom; }
+    .reveal-on .price-figure.reveal.in { transform: none; }
+    .swatch, .choice, .btn, .tab { transition: transform .12s ease, background-color .15s, border-color .15s, box-shadow .15s; }
+    .swatch:not(:disabled):hover { transform: scale(1.08); }
+    .btn:not(:disabled):active, .choice:active { transform: scale(.97); }
+  }
+
+  /* ---------- Phone menu ---------- */
+  .menu-btn { display: none; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; padding: 0; position: relative; }
+  .menu-btn span { position: absolute; left: 11px; right: 11px; height: 2px; background: var(--ink); border-radius: 2px; transition: transform .2s, top .2s; }
+  .menu-btn span:first-child { top: 15px; }
+  .menu-btn span:last-child { top: 23px; }
+  .menu-btn[aria-expanded="true"] span:first-child { top: 19px; transform: rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:last-child { top: 19px; transform: rotate(-45deg); }
+  .mobile-menu { border-top: 1px solid var(--line); background: var(--paper); }
+  .mobile-menu .wrap { display: grid; justify-content: stretch; align-items: stretch; gap: 0; padding-block: 8px 16px; }
+  .mobile-menu a { text-decoration: none; font-size: 1.05rem; font-weight: 600; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .mobile-menu a:last-child { border-bottom: 0; }
+  @media (max-width: 760px) {
+    .site-nav { display: none; }
+    .menu-btn { display: block; }
+    .head-right { gap: 10px; }
+  }
+  @media (min-width: 761px) { .mobile-menu { display: none !important; } }
+
+  /* ---------- Phone dock ---------- */
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 8;
+    display: none; align-items: center; gap: 12px;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line); box-shadow: 0 -10px 30px -18px rgba(0,0,0,.35);
+    transform: translateY(110%); transition: transform .28s cubic-bezier(.2, .7, .2, 1);
+  }
+  .dock.show { transform: none; }
+  .dock-thumb { width: 52px; height: 52px; flex: none; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+  .dock-thumb svg { width: 100%; height: 100%; display: block; }
+  .dock-text { flex: 1; min-width: 0; display: grid; line-height: 1.25; }
+  .dock-text b { font-size: 0.92rem; }
+  .dock-text span { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dock-actions { display: flex; gap: 6px; flex: none; }
+  .dock-actions .btn { min-height: 40px; }
+  @media (prefers-reduced-motion: reduce) { .dock { transition: none; } }
+
+  /* ---------- Phone layout ---------- */
+  @media (max-width: 860px) {
+    .dock { display: flex; }
+    /* 16px stops iPhones zooming in when a field is tapped */
+    input[type=text], input[type=url], input[type=email], input[type=password], textarea, select { font-size: 16px; }
+    .swatches { gap: 10px; }
+    .swatch { width: 40px; height: 40px; }
+    .choice { padding: 12px 6px 10px; }
+    .tab { padding: 10px 12px; }
+    .btn { min-height: 44px; }
+    .btn.small { min-height: 40px; }
+    .controls, .preview-col { padding: 20px 16px; }
+    .stage { max-width: 300px; }
+    .site-foot { margin-top: 72px; padding-bottom: 76px; }
+  }
+  @media (max-width: 520px) {
+    .intro h1 { font-size: clamp(2.1rem, 10.5vw, 2.6rem); }
+    section.band { padding-block: 56px 0; }
+    .tool { border-radius: 12px; }
+    .actions { grid-template-columns: 1fr; }
+    #signin-btn { padding-inline: 10px; }
+    /* Sign-in becomes a bottom sheet */
+    dialog.auth { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 18px 18px 0 0; border-bottom: 0; max-height: 92dvh; }
+    dialog.auth .auth-body { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+    dialog.auth[open] { animation: sheet .3s cubic-bezier(.2, .7, .2, 1); }
+    @keyframes sheet { from { transform: translateY(100%); } to { transform: none; } }
+  }
+  @media (prefers-reduced-motion: reduce) { dialog.auth[open] { animation: none; } }
+
+  section[id], #generator { scroll-margin-top: 80px; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
   .site-foot { margin-top: 96px; border-top: 1px solid var(--line); }
   .site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 28px 40px; color: var(--muted); font-size: 0.85rem; }
 </style>
@@ -270,20 +357,32 @@
           <button type="button" class="btn ghost small" id="signout-btn">Sign out</button>
         </div>
       </div>
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
     </div>
   </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Sections" hidden>
+    <div class="wrap">
+      <a href="#generator">Make a code</a>
+      <a href="#free">Pricing</a>
+      <a href="#spec">What makes it scan</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </nav>
 </header>
 
 <main id="top">
   <section class="intro">
     <div class="wrap">
       <div>
-        <span class="eyebrow">100% free QR code generator</span>
-        <h1><span class="free-word">Free</span> QR codes that still scan after you <em>make them yours</em>.</h1>
+        <span class="eyebrow enter" style="--d:0s">100% free QR code generator</span>
+        <h1 class="enter" style="--d:.08s"><span class="free-word">Free</span> QR codes that still scan after you <em>make them yours</em>.</h1>
       </div>
       <div>
-        <p>Add your colours and logo, then download a print-ready SVG or PNG. No watermarks and nothing to pay. You just need a free account to download.</p>
-        <div class="facts" aria-label="Key facts">
+        <p class="enter" style="--d:.18s">Add your colours and logo, then download a print-ready SVG or PNG. No watermarks and nothing to pay. You just need a free account to download.</p>
+        <div class="facts enter" style="--d:.26s" aria-label="Key facts">
           <span>Free, no card needed</span>
           <span>No watermarks</span>
           <span>Unlimited codes</span>
@@ -294,7 +393,7 @@
   </section>
 
   <div class="wrap">
-    <div class="tool" id="generator">
+    <div class="tool enter" id="generator" style="--d:.34s">
       <div class="controls">
         <div class="group">
           <div class="tabs" role="tablist" aria-label="What should the code open?" id="tabs">
@@ -552,6 +651,19 @@
     <span>QR Code is a registered trademark of DENSO WAVE INCORPORATED.</span>
   </div>
 </footer>
+
+<!-- Phone only: keeps the code in view while you scroll through the options -->
+<div class="dock" id="dock" aria-label="Your code" inert>
+  <div class="dock-thumb" id="dock-thumb"></div>
+  <div class="dock-text">
+    <b>Your code</b>
+    <span id="dock-meta"></span>
+  </div>
+  <div class="dock-actions">
+    <button type="button" class="btn ghost small" id="dock-svg">SVG</button>
+    <button type="button" class="btn primary small" id="dock-png">PNG</button>
+  </div>
+</div>
 
 <dialog class="auth" id="auth" aria-labelledby="auth-title">
   <form method="dialog" class="auth-close-form"><button class="auth-close" aria-label="Close" value="cancel">×</button></form>
@@ -838,6 +950,7 @@
     $('r-version').textContent = c ? c.version : '-';
     $('r-grid').textContent = c ? c.size + '×' + c.size : '-';
     $('r-ecl').textContent = c ? ECL_NAMES[c.ecl] : '-';
+    syncDock();
   }
 
   function showEmpty(msg) {
@@ -1127,7 +1240,73 @@
   $('dl-svg').addEventListener('click', () => requireAccount('svg'));
   $('dl-png').addEventListener('click', () => requireAccount('png'));
 
+  /* ---------------- Phone menu ---------------- */
+  const menuBtn = $('menu-btn'), menu = $('mobile-menu');
+  function setMenu(open) {
+    menu.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  menuBtn.addEventListener('click', () => setMenu(menu.hidden));
+  menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+
+  /* ---------------- Phone dock ---------------- */
+  // Shows a small copy of the code at the bottom of the screen while the big
+  // preview is scrolled out of view but you are still in the generator.
+  const dock = $('dock');
+  let stageVisible = true, toolVisible = true;
+
+  function syncDock() {
+    if (!dock) return;
+    const thumb = $('dock-thumb');
+    thumb.innerHTML = code ? $('preview').innerHTML : '';
+    $('dock-meta').textContent = code ? payload : 'Add content to make a code';
+    $('dock-svg').disabled = $('dock-png').disabled = !code;
+    const show = !!code && !stageVisible && toolVisible;
+    dock.classList.toggle('show', show);
+    dock.inert = !show;
+  }
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { stageVisible = e.isIntersecting; syncDock(); }, { threshold: 0.15 }).observe($('stage'));
+    new IntersectionObserver(([e]) => { toolVisible = e.isIntersecting; syncDock(); }, { rootMargin: '0px 0px -30% 0px' }).observe($('generator'));
+  }
+  $('dock-svg').addEventListener('click', () => requireAccount('svg'));
+  $('dock-png').addEventListener('click', () => requireAccount('png'));
+
+  /* ---------------- Scroll reveals ---------------- */
+  // Only sections below the first screen are prepared, and they start faint
+  // rather than invisible, so nothing is ever hidden if this script stops.
+  function setupReveals() {
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const groups = [
+      ['.band-head'], ['.price-figure'], ['.price-sub'], ['.price-list li', 0.06], ['.price-why'],
+      ['.spec tr', 0.04], ['.step', 0.1], ['.faq details', 0.05],
+    ];
+    const targets = [];
+    const fold = window.innerHeight;
+    for (const [sel, stagger] of groups) {
+      document.querySelectorAll(sel).forEach((el, i) => {
+        if (el.getBoundingClientRect().top < fold) return; // already on screen
+        el.classList.add('reveal');
+        if (stagger) el.style.setProperty('--rd', Math.min(i * stagger, 0.4) + 's');
+        targets.push(el);
+      });
+    }
+    if (!targets.length) return;
+    document.documentElement.classList.add('reveal-on');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
+    targets.forEach((el) => io.observe(el));
+  }
+
   /* ---------------- Start ---------------- */
+  setupReveals();
   buildStyles();
   buildShapes();
   buildSwatches('fg');
