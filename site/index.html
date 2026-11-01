@@ -1483,9 +1483,9 @@
   // Keep only digits as people type or paste ("123 456" works too).
   // Sign in straight away when a whole code arrives at once: pasted, filled in by
   // the phone from the email, or brought in with the Paste button. Typing is left
-  // alone, since the code could be 6 or 8 digits long.
+  // alone, since the code could be 6 to 10 digits long.
   function fillCode(text) {
-    const digits = String(text || '').replace(/\D/g, '').slice(0, 8);
+    const digits = String(text || '').replace(/\D/g, '').slice(0, 10);
     $('auth-code-input').value = digits;
     codeError('');
     if (digits.length >= 6) $('code-form').requestSubmit();
@@ -1499,7 +1499,7 @@
 
   let lastCodeLength = 0;
   $('auth-code-input').addEventListener('input', (e) => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
     if (digits !== e.target.value) e.target.value = digits;
     codeError('');
     const jumped = digits.length - lastCodeLength >= 4; // whole code arrived in one go (phone autofill)
