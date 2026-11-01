@@ -1143,19 +1143,28 @@
   const DRAFT_FIELDS = ['in-link', 'in-text', 'in-ssid', 'in-wifi-pass', 'in-wifi-sec',
     'in-email-to', 'in-email-subject', 'in-email-body', 'logo-size', 'ecl'];
 
-  function saveDraft(kind) {
+  // Everything about the design except the logo image, which is too big for a link.
+  function buildDraft(kind) {
     const state = {
-      t: Date.now(), kind, tab: activeTab, style: moduleStyle, colours: Object.assign({}, colours),
+      v: 1, t: Date.now(), kind, tab: activeTab, style: moduleStyle, colours: Object.assign({}, colours),
       shape: logoShape, hidden: $('in-wifi-hidden').checked, ecl: logo ? eclBeforeLogo : $('ecl').value,
-      fields: {}, logo: logo ? { src: logo.src, name: logo.name } : null,
+      fields: {}, hadLogo: !!logo,
     };
     DRAFT_FIELDS.forEach((id) => { state.fields[id] = $(id).value; });
+    return state;
+  }
+
+  // Saved in this browser, with the logo, for when the link opens here.
+  function saveDraft(kind) {
+    const state = buildDraft(kind);
+    state.logo = logo ? { src: logo.src, name: logo.name } : null;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
     } catch (e) {
       // Storage full or blocked: try again without the logo, then give up quietly.
-      try { state.logo = null; localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch (e2) { /* ignore */ }
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.assign({}, state, { logo: null }))); } catch (e2) { /* ignore */ }
     }
+    return state;
   }
 
   function readDraft() {
@@ -1168,27 +1177,97 @@
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
 
+  /* The design also travels inside the sign-in link, so it comes back even when
+     the email opens in a different browser (mail apps often use their own). */
+  const RESUME_PARAM = 'resume';
+  const MAX_RESUME_LENGTH = 1800; // keeps the link a safe length for email
+
+  function encodeDraft(state) {
+    const bytes = new TextEncoder().encode(JSON.stringify(state));
+    let bin = '';
+    bytes.forEach((b) => { bin += String.fromCharCode(b); });
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decodeDraft(str) {
+    try {
+      const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+      const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (e) { return null; }
+  }
+
+  // A link can be made by anyone, so only accept values the page could have produced.
+  function cleanDraft(d) {
+    if (!d || typeof d !== 'object') return null;
+    const hexes = PALETTE.map((c) => c[1]);
+    const out = {
+      t: Number(d.t) || 0, kind: ['svg', 'png', 'unlock'].includes(d.kind) ? d.kind : null,
+      tab: TABS.includes(d.tab) ? d.tab : 'link',
+      style: STYLES.some((st) => st[0] === d.style) ? d.style : 'square',
+      shape: d.shape === 'circle' ? 'circle' : 'square',
+      hidden: d.hidden === true, ecl: ['L', 'M', 'Q', 'H'].includes(d.ecl) ? d.ecl : 'M',
+      hadLogo: d.hadLogo === true, fields: {}, logo: null,
+    };
+    const fg = d.colours && d.colours.fg, bg = d.colours && d.colours.bg;
+    out.colours = hexes.includes(fg) && hexes.includes(bg) && contrast(fg, bg) >= MIN_CONTRAST
+      ? { fg, bg } : { fg: '#000000', bg: '#ffffff' };
+    DRAFT_FIELDS.forEach((id) => {
+      const v = d.fields && d.fields[id];
+      if (typeof v === 'string' && v.length <= 3000) out.fields[id] = v;
+    });
+    if (!/^(WPA|WEP|nopass)$/.test(out.fields['in-wifi-sec'] || 'WPA')) delete out.fields['in-wifi-sec'];
+    const size = Number(out.fields['logo-size']);
+    if (!(size >= 10 && size <= 25)) delete out.fields['logo-size'];
+    if (!['L', 'M', 'Q', 'H'].includes(out.fields.ecl)) delete out.fields.ecl;
+    if (d.logo && typeof d.logo.src === 'string' && /^data:image\/(png|jpeg|svg\+xml|webp);base64,/.test(d.logo.src)) {
+      out.logo = { src: d.logo.src, name: String(d.logo.name || 'logo').slice(0, 120) };
+    }
+    return out;
+  }
+
+  // Reads the design from the link and removes it from the address bar.
+  // The #... part is left alone, because that is where the sign-in details arrive.
+  function takeLinkDraft() {
+    let raw = null;
+    try {
+      const url = new URL(location.href);
+      raw = url.searchParams.get(RESUME_PARAM);
+      if (raw !== null) {
+        url.searchParams.delete(RESUME_PARAM);
+        history.replaceState(null, '', url.pathname + url.search + url.hash);
+      }
+    } catch (e) { /* ignore */ }
+    return raw ? cleanDraft(decodeDraft(raw)) : null;
+  }
+
   async function applyDraft(d) {
-    DRAFT_FIELDS.forEach((id) => { if (d.fields && id in d.fields) $(id).value = d.fields[id]; });
-    $('in-wifi-hidden').checked = !!d.hidden;
-    moduleStyle = d.style || moduleStyle;
-    if (d.colours) Object.assign(colours, d.colours);
-    logoShape = d.shape || logoShape;
+    DRAFT_FIELDS.forEach((id) => { if (id in d.fields) $(id).value = d.fields[id]; });
+    $('in-wifi-hidden').checked = d.hidden;
+    moduleStyle = d.style;
+    Object.assign(colours, d.colours);
+    logoShape = d.shape;
     buildStyles(); buildShapes(); buildSwatches('fg'); buildSwatches('bg');
     if (d.logo) {
       try {
         const image = await QR.loadImage(d.logo.src);
-        eclBeforeLogo = d.ecl || 'M';
+        eclBeforeLogo = d.ecl;
         logo = { src: d.logo.src, image, name: d.logo.name };
         updateLogoUI();
       } catch (e) { /* logo could not be restored, carry on without it */ }
+    } else if (!logo) {
+      $('ecl').value = d.ecl;
     }
-    selectTab(TABS.indexOf(d.tab) >= 0 ? d.tab : 'link');
+    selectTab(d.tab);
   }
+
+  let resumed = null; // the design brought back after signing in, if any
 
   function showReady(kind) {
     const r = $('ready');
-    r.textContent = "You're signed in. Your code is ready, so download it whenever you like.";
+    const logoLost = resumed && resumed.hadLogo && !resumed.logo;
+    r.textContent = logoLost
+      ? "You're signed in and your code is back. Your logo couldn't come with you to this browser, so add it again before downloading."
+      : "You're signed in. Your code is ready, so download it whenever you like.";
     r.hidden = false;
     pending = null;
     if (kind && $('dl-' + kind)) $('dl-' + kind).focus();
@@ -1302,13 +1381,22 @@
     openAuth(kind);
   }
 
-  function returnUrl() { return location.origin + location.pathname; }
+  // Where the sign-in link sends people back to, carrying their design with it.
+  // Pass the state just saved, so the link and this browser share one timestamp.
+  function returnUrl(state) {
+    const base = location.origin + location.pathname;
+    try {
+      const enc = encodeDraft(Object.assign({}, state || buildDraft(pending), { logo: undefined }));
+      if (enc.length <= MAX_RESUME_LENGTH) return base + '?' + RESUME_PARAM + '=' + enc;
+    } catch (e) { /* fall back to the plain address */ }
+    return base;
+  }
 
   $('google-btn').addEventListener('click', async () => {
     authError('');
     if (!sb) return authError(openMode ? 'Sign-in with Google works once the site is live with sign-in connected.' : 'Sign-in could not load. Refresh the page and try again.');
-    saveDraft(pending);
-    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: returnUrl() } });
+    const saved = saveDraft(pending);
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: returnUrl(saved) } });
     if (error) authError('Google sign-in did not start. Try again, or use your email instead.');
   });
 
@@ -1321,8 +1409,8 @@
     const btn = $('email-btn');
     btn.disabled = true;
     btn.textContent = 'Sending…';
-    saveDraft(pending);
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl(), shouldCreateUser: true } });
+    const saved = saveDraft(pending);
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl(saved), shouldCreateUser: true } });
     btn.disabled = false;
     btn.textContent = 'Email me a sign-in link';
     if (error) {
@@ -1427,19 +1515,25 @@
   selectTab('link');
   updateAccountUI();
 
-  const draft = readDraft();
-  if (draft) applyDraft(draft);
+  // Bring back a design from before sign-in. This browser's copy wins when it is at
+  // least as new, because it also has the logo; otherwise use the copy from the link.
+  {
+    const fromLink = takeLinkDraft();
+    const local = cleanDraft(readDraft());
+    const pick = local && (!fromLink || local.t >= fromLink.t) ? local : fromLink;
+    if (pick) { resumed = pick; applyDraft(pick); }
+  }
 
   if (sb) {
     sb.auth.onAuthStateChange((event, session) => {
       user = session ? session.user : null;
       updateAccountUI();
       if (user) {
-        const d = readDraft();
-        if (d || pending) {
+        if (resumed || pending) {
           if ($('auth').open) $('auth').close();
-          showReady((d && d.kind) || pending);
+          showReady((resumed && resumed.kind) || pending);
           clearDraft();
+          resumed = null;
         }
       }
     });
