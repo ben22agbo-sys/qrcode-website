@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Your QR Origin sign-in code</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f2ee;">
+  <!-- Preview text shown next to the subject in most inboxes -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your QR Origin sign-in code is {{ .Token }}</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f2ee;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+
+          <!-- Brand -->
+          <tr>
+            <td style="padding:0 4px 20px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="width:12px;height:12px;border:4px solid #121513;padding:3px;">
+                    <div style="width:12px;height:12px;background:#121513;font-size:0;line-height:0;">&nbsp;</div>
+                  </td>
+                  <td style="padding-left:10px;font-family:Helvetica,Arial,sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.3px;color:#121513;">QR Origin</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#ffffff;border:1px solid #d8dbd5;border-radius:14px;padding:32px 28px;">
+              <p style="margin:0 0 6px;font-family:Menlo,Consolas,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#5b625d;">Sign-in code</p>
+              <h1 style="margin:0 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:24px;line-height:1.2;font-weight:800;letter-spacing:-0.5px;color:#121513;">Here's your code</h1>
+              <p style="margin:0 0 24px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#5b625d;">Type this code on QR Origin to sign in. Your QR code will be there waiting for you.</p>
+
+              <!-- The code -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="background:#f8f9f6;border:1px solid #d8dbd5;border-radius:10px;padding:20px 12px;font-family:Menlo,Consolas,'Courier New',monospace;font-size:34px;font-weight:700;letter-spacing:10px;color:#121513;">{{ .Token }}</td>
+                </tr>
+              </table>
+
+              <p style="margin:24px 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#5b625d;">On the same device? You can sign in with this button instead.</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="border-radius:10px;background:#2b35d6;">
+                    <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:12px 20px;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Sign in to QR Origin</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:28px 0 0;padding-top:20px;border-top:1px solid #d8dbd5;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.55;color:#5b625d;">This code works once and stops working after a short while. If you didn't ask to sign in, you can ignore this email. Nobody can get into your account without this code.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 4px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#5b625d;">
+              QR Origin · Free QR codes, made in your browser.<br>
+              <a href="https://qrorigin.net" style="color:#5b625d;">qrorigin.net</a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

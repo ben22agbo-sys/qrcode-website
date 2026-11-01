@@ -296,6 +296,9 @@
   .auth-email { display: grid; gap: 8px; margin: 0; }
   .auth-email label { font-size: 0.78rem; color: var(--muted); }
   .auth-fine { margin: 0; font-size: 0.78rem; color: var(--muted); }
+  .code-input { font-family: var(--mono) !important; font-size: 1.5rem !important; letter-spacing: 0.35em; text-align: center; padding: 12px !important; }
+  .code-input::placeholder { color: color-mix(in srgb, var(--muted) 45%, transparent); }
+  .auth-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .ready-banner { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
 
   /* ---------- Motion ---------- */
@@ -670,7 +673,7 @@
         </details>
         <details>
           <summary>Do I need an account?</summary>
-          <p>You can make and style codes without one. To download, you need a free account. Sign in with Google or with a link sent to your email, so there is no password to remember.</p>
+          <p>You can make and style codes without one. To download, you need a free account. Sign in with a code sent to your email, so there is no password to remember.</p>
         </details>
         <details>
           <summary>Will my QR code ever stop working?</summary>
@@ -736,16 +739,27 @@
     <form class="auth-email" id="email-form" novalidate>
       <label for="auth-email-input">Email address</label>
       <input type="email" id="auth-email-input" placeholder="you@example.com" autocomplete="email" required>
-      <button type="submit" class="btn primary" id="email-btn">Email me a sign-in link</button>
+      <button type="submit" class="btn primary" id="email-btn">Email me a sign-in code</button>
     </form>
     <p class="hint error" id="auth-error" hidden></p>
     <p class="auth-fine">No password needed. We only store your email address.</p>
   </div>
   <div class="auth-body" id="auth-sent-view" hidden>
     <span class="eyebrow">Check your inbox</span>
-    <h2>Your sign-in link is on its way</h2>
-    <p class="auth-sub">We sent it to <b id="auth-sent-to"></b>. Open it on this device and your code will be here, ready to download.</p>
-    <button type="button" class="btn ghost" id="auth-back">Use a different email</button>
+    <h2>Enter the code we sent you</h2>
+    <p class="auth-sub">We emailed a code to <b id="auth-sent-to"></b>. Type it here to sign in on this device and keep your design.</p>
+    <form class="auth-email" id="code-form" novalidate>
+      <label for="auth-code-input">Sign-in code</label>
+      <input type="text" id="auth-code-input" class="code-input" inputmode="numeric" autocomplete="one-time-code"
+             pattern="[0-9]*" maxlength="8" placeholder="123456" spellcheck="false">
+      <button type="submit" class="btn primary" id="code-btn">Sign in</button>
+    </form>
+    <p class="hint error" id="code-error" hidden></p>
+    <p class="auth-fine">You can also tap the link in the email, but the code keeps you on this device.</p>
+    <div class="auth-row">
+      <button type="button" class="btn ghost small" id="auth-resend">Send a new code</button>
+      <button type="button" class="btn ghost small" id="auth-back">Use a different email</button>
+    </div>
   </div>
 </dialog>
 
@@ -1400,6 +1414,34 @@
     if (error) authError('Google sign-in did not start. Try again, or use your email instead.');
   });
 
+  let sentTo = '';
+  let resendTimer = null;
+
+  async function sendCode(email) {
+    const saved = saveDraft(pending);
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl(saved), shouldCreateUser: true } });
+    return error;
+  }
+
+  function startResendCooldown() {
+    const b = $('auth-resend');
+    let left = 60;
+    clearInterval(resendTimer);
+    b.disabled = true;
+    b.textContent = 'Send a new code (' + left + 's)';
+    resendTimer = setInterval(() => {
+      left -= 1;
+      if (left <= 0) { clearInterval(resendTimer); b.disabled = false; b.textContent = 'Send a new code'; }
+      else b.textContent = 'Send a new code (' + left + 's)';
+    }, 1000);
+  }
+
+  function sendErrorText(error) {
+    return /rate|seconds|too many/i.test(error.message || '')
+      ? 'Too many codes sent. Wait a minute, then try again.'
+      : 'We could not send the code. Check the address and try again.';
+  }
+
   $('email-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     authError('');
@@ -1409,18 +1451,58 @@
     const btn = $('email-btn');
     btn.disabled = true;
     btn.textContent = 'Sending…';
-    const saved = saveDraft(pending);
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl(saved), shouldCreateUser: true } });
+    const error = await sendCode(email);
     btn.disabled = false;
-    btn.textContent = 'Email me a sign-in link';
-    if (error) {
-      return authError(/rate|seconds|too many/i.test(error.message)
-        ? 'Too many links sent. Wait a minute, then try again.'
-        : 'We could not send the link. Check the address and try again.');
-    }
+    btn.textContent = 'Email me a sign-in code';
+    if (error) return authError(sendErrorText(error));
+    sentTo = email;
     $('auth-sent-to').textContent = email;
+    $('auth-code-input').value = '';
+    $('code-error').hidden = true;
     $('auth-form-view').hidden = true;
     $('auth-sent-view').hidden = false;
+    startResendCooldown();
+    $('auth-code-input').focus();
+  });
+
+  function codeError(msg) {
+    $('code-error').textContent = msg || '';
+    $('code-error').hidden = !msg;
+  }
+
+  // Keep only digits as people type or paste ("123 456" works too).
+  $('auth-code-input').addEventListener('input', (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    if (digits !== e.target.value) e.target.value = digits;
+    codeError('');
+  });
+
+  $('code-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = $('auth-code-input').value.replace(/\D/g, '');
+    if (token.length < 6) return codeError('Enter the full code from the email.');
+    const btn = $('code-btn');
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    const { error } = await sb.auth.verifyOtp({ email: sentTo, token, type: 'email' });
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+    if (error) {
+      // Supabase gives the same error for a mistyped code and an expired one.
+      return codeError("That code didn't work. It may be mistyped or out of date, so check it or send a new one.");
+    }
+    // Signed in: the sign-in listener closes this window and shows the ready message.
+  });
+
+  $('auth-resend').addEventListener('click', async () => {
+    if (!sentTo) return;
+    codeError('');
+    const error = await sendCode(sentTo);
+    if (error) return codeError(sendErrorText(error));
+    startResendCooldown();
+    codeError('');
+    $('auth-code-input').value = '';
+    $('auth-code-input').focus();
   });
 
   $('auth-back').addEventListener('click', () => {
