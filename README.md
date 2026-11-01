@@ -45,7 +45,7 @@ Downloads stay open until sign-in is connected, so the site never locks people o
 3. In the authentication settings, set the Site URL to your live address and add it to the allowed redirect URLs.
 4. For Google sign-in, turn on the Google provider. This needs an OAuth client from Google Cloud.
 5. Before launch, connect your own email sender (for example Resend). Supabase's built-in sender is limited and meant for testing.
-6. Paste `email/sign-in.html` into Supabase under Authentication > Email Templates, in both **Magic Link** and **Confirm signup**, with the subject `Your QR Origin sign-in code`. It shows a sign-in code (`{{ .Token }}`) and a backup link (`{{ .ConfirmationURL }}`). The code is what keeps people signed in on the device where they made their QR code.
+6. Paste `email/sign-in.html` into Supabase under Authentication > Email Templates, in both **Magic Link** and **Confirm signup**, with the subject `{{ .Token }} is your QR Origin code` (code first, so it shows in phone notifications). It shows a sign-in code (`{{ .Token }}`) and a backup link (`{{ .ConfirmationURL }}`). The code is what keeps people signed in on the device where they made their QR code.
 
 ## The engine
 

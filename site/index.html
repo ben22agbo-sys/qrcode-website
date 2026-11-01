@@ -299,6 +299,10 @@
   .code-input { font-family: var(--mono) !important; font-size: 1.5rem !important; letter-spacing: 0.35em; text-align: center; padding: 12px !important; }
   .code-input::placeholder { color: color-mix(in srgb, var(--muted) 45%, transparent); }
   .auth-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .code-row { display: flex; gap: 8px; align-items: stretch; }
+  .code-row .code-input { flex: 1; min-width: 0; }
+  .paste-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; }
+  .paste-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .ready-banner { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
 
   /* ---------- Motion ---------- */
@@ -750,8 +754,14 @@
     <p class="auth-sub">We emailed a code to <b id="auth-sent-to"></b>. Type it here to sign in on this device and keep your design.</p>
     <form class="auth-email" id="code-form" novalidate>
       <label for="auth-code-input">Sign-in code</label>
-      <input type="text" id="auth-code-input" class="code-input" inputmode="numeric" autocomplete="one-time-code"
-             pattern="[0-9]*" maxlength="8" placeholder="123456" spellcheck="false">
+      <div class="code-row">
+        <input type="text" id="auth-code-input" class="code-input" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]*" placeholder="123456" spellcheck="false">
+        <button type="button" class="btn ghost paste-btn" id="code-paste" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg>
+          Paste
+        </button>
+      </div>
       <button type="submit" class="btn primary" id="code-btn">Sign in</button>
     </form>
     <p class="hint error" id="code-error" hidden></p>
@@ -1471,17 +1481,52 @@
   }
 
   // Keep only digits as people type or paste ("123 456" works too).
+  // Sign in straight away when a whole code arrives at once: pasted, filled in by
+  // the phone from the email, or brought in with the Paste button. Typing is left
+  // alone, since the code could be 6 or 8 digits long.
+  function fillCode(text) {
+    const digits = String(text || '').replace(/\D/g, '').slice(0, 8);
+    $('auth-code-input').value = digits;
+    codeError('');
+    if (digits.length >= 6) $('code-form').requestSubmit();
+    return digits.length;
+  }
+
+  $('auth-code-input').addEventListener('paste', (e) => {
+    const text = e.clipboardData && e.clipboardData.getData('text');
+    if (text) { e.preventDefault(); fillCode(text); }
+  });
+
+  let lastCodeLength = 0;
   $('auth-code-input').addEventListener('input', (e) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
     if (digits !== e.target.value) e.target.value = digits;
     codeError('');
+    const jumped = digits.length - lastCodeLength >= 4; // whole code arrived in one go (phone autofill)
+    lastCodeLength = digits.length;
+    if (jumped && digits.length >= 6 && e.inputType !== 'insertText') $('code-form').requestSubmit();
   });
+
+  // The Paste button reads the clipboard, which browsers allow after a tap.
+  // Claude's preview blocks it, so the button only shows on the real site.
+  if (!framed && navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+    $('code-paste').hidden = false;
+    $('code-paste').addEventListener('click', async () => {
+      try {
+        const n = fillCode(await navigator.clipboard.readText());
+        if (n < 6) codeError("We couldn't find a code on your clipboard. Copy the code from the email, then tap Paste.");
+      } catch (err) {
+        codeError('Paste was blocked. Press and hold the box above, then choose Paste.');
+      }
+    });
+  }
 
   $('code-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = $('auth-code-input').value.replace(/\D/g, '');
     if (token.length < 6) return codeError('Enter the full code from the email.');
     const btn = $('code-btn');
+    if (btn.disabled) return; // already checking
     btn.disabled = true;
     btn.textContent = 'Checking…';
     const { error } = await sb.auth.verifyOtp({ email: sentTo, token, type: 'email' });
