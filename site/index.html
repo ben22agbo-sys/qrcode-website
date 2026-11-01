@@ -750,7 +750,7 @@
 </dialog>
 
 <!-- Supabase handles sign-in. Pinned version, loaded before the page script. -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="qr.js"></script>
 <script>
 (function () {
@@ -1120,8 +1120,10 @@
   // Fill these in from your Supabase project: Project Settings > API.
   // The anon (public) key is designed to be used in web pages, so it is safe here.
   const AUTH_CONFIG = {
-    supabaseUrl: 'YOUR_SUPABASE_URL',          // looks like https://abcdefgh.supabase.co
-    supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
+    supabaseUrl: 'https://iwgjdeqizohndualsfuc.supabase.co',
+    supabaseAnonKey: 'sb_publishable_aJJj3WlwzqYAxIW5F3xFfQ_2KXVSA74', // publishable key, safe in web pages
+    // Turn on once the Google provider is enabled in Supabase (Authentication > Sign In / Providers).
+    googleEnabled: false,
   };
 
   const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(AUTH_CONFIG.supabaseUrl) &&
@@ -1251,6 +1253,10 @@
     $('auth-error').textContent = msg || '';
     $('auth-error').hidden = !msg;
   }
+
+  const showGoogle = AUTH_CONFIG.googleEnabled || openMode;
+  $('google-btn').hidden = !showGoogle;
+  document.querySelector('.auth-or').hidden = !showGoogle;
 
   function openAuth(kind) {
     pending = kind || null;
