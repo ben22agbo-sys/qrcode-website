@@ -1,0 +1,28 @@
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="QR Origin home">
+      <svg viewBox="0 0 7 7" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2z"/></svg>
+      QR Origin
+    </a>
+    <div class="head-right">
+      <nav class="site-nav" aria-label="Main">
+        <a href="/#types"{{nav_types}}>QR code types</a>
+        <a href="/guides/"{{nav_guides}}>Guides</a>
+        <a href="/#free">Pricing</a>
+      </nav>
+{{account}}
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Main" hidden>
+    <div class="wrap">
+      <a href="{{make_href}}">Make a code</a>
+{{mobile_types}}
+      <a href="/guides/">Guides</a>
+      <a href="/#free">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+  </nav>
+</header>

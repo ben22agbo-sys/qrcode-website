@@ -1,0 +1,139 @@
+  <div class="wrap">
+    <div class="tool enter" id="generator" style="--d:.34s">
+      <div class="controls">
+        <div class="group">
+          <div class="tabs" role="tablist" aria-label="What should the code open?" id="tabs">
+            <button class="tab" role="tab" id="tab-link" aria-selected="true" aria-controls="panel-link" type="button">Link</button>
+            <button class="tab" role="tab" id="tab-text" aria-selected="false" aria-controls="panel-text" type="button">Text</button>
+            <button class="tab" role="tab" id="tab-wifi" aria-selected="false" aria-controls="panel-wifi" type="button">Wi-Fi</button>
+            <button class="tab" role="tab" id="tab-email" aria-selected="false" aria-controls="panel-email" type="button">Email</button>
+          </div>
+
+          <div class="fields" role="tabpanel" id="panel-link" aria-labelledby="tab-link">
+            <div class="field">
+              <label for="in-link">Website address</label>
+              <input type="url" id="in-link" value="https://example.com/menu" placeholder="https://yourwebsite.com" autocomplete="url" spellcheck="false">
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden>
+            <div class="field">
+              <label for="in-text">Text</label>
+              <textarea id="in-text" placeholder="Any text, up to about 1,200 characters with a logo">Table 12 · Scan to order</textarea>
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-wifi" aria-labelledby="tab-wifi" hidden>
+            <div class="two-up">
+              <div class="field">
+                <label for="in-ssid">Network name</label>
+                <input type="text" id="in-ssid" value="Cafe Guest" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="in-wifi-pass">Password</label>
+                <input type="text" id="in-wifi-pass" value="flatwhite2026" spellcheck="false" autocomplete="off">
+              </div>
+            </div>
+            <div class="two-up">
+              <div class="field">
+                <label for="in-wifi-sec">Security</label>
+                <select id="in-wifi-sec">
+                  <option value="WPA" selected>WPA / WPA2 / WPA3</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">No password</option>
+                </select>
+              </div>
+              <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="in-wifi-hidden"> Hidden network</label>
+            </div>
+          </div>
+          <div class="fields" role="tabpanel" id="panel-email" aria-labelledby="tab-email" hidden>
+            <div class="field">
+              <label for="in-email-to">Send to</label>
+              <input type="email" id="in-email-to" value="hello@example.com" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="in-email-subject">Subject</label>
+              <input type="text" id="in-email-subject" value="Booking enquiry">
+            </div>
+            <div class="field">
+              <label for="in-email-body">Message</label>
+              <textarea id="in-email-body" style="min-height:70px">Hi, I'd like to book a table for</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="style-label">Pattern</div>
+          <div class="choices" id="style" role="radiogroup" aria-labelledby="style-label"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="fg-label">Code colour</div>
+          <div class="swatches" id="fg" role="radiogroup" aria-labelledby="fg-label"></div>
+          <div class="group-label" id="bg-label" style="margin-top:6px">Background</div>
+          <div class="swatches" id="bg" role="radiogroup" aria-labelledby="bg-label"></div>
+          <p class="hint">Crossed-out colours are too close to your other choice for phones to read.</p>
+        </div>
+
+        <div class="group">
+          <div class="group-label" id="logo-label">Logo <span class="value">optional</span></div>
+          <input type="file" id="logo-file" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+          <div class="drop" id="logo-drop" aria-labelledby="logo-label">
+            <div class="drop-empty" id="logo-empty">
+              <button type="button" class="btn ghost small" id="logo-add">Upload logo</button>
+              <span class="hint">or drop an image here. PNG, JPG, SVG or WebP, up to 2 MB.</span>
+            </div>
+            <div class="drop-filled" id="logo-filled" hidden>
+              <img class="thumb" id="logo-thumb" alt="">
+              <span class="file-name" id="logo-name"></span>
+              <button type="button" class="btn ghost small" id="logo-replace">Replace</button>
+              <button type="button" class="btn ghost small" id="logo-remove">Remove</button>
+            </div>
+          </div>
+          <p class="hint error" id="logo-error" hidden></p>
+          <div id="logo-controls" class="group" hidden>
+            <label class="group-label" for="logo-size">Logo size <span class="value" id="logo-size-val">20%</span></label>
+            <input type="range" id="logo-size" min="10" max="25" step="1" value="20">
+            <div class="group-label" id="shape-label">Space around logo</div>
+            <div class="choices two" id="logo-shape" role="radiogroup" aria-labelledby="shape-label"></div>
+          </div>
+        </div>
+
+        <details class="more" id="advanced">
+          <summary>Error correction</summary>
+          <div class="group">
+            <select id="ecl" aria-label="Error correction level">
+              <option value="L">Low · recovers 7% damage, smallest code</option>
+              <option value="M" selected>Medium · recovers 15%, good default</option>
+              <option value="Q">Quartile · recovers 25%</option>
+              <option value="H">High · recovers 30%, toughest</option>
+            </select>
+            <p class="hint" id="ecl-note">Higher levels survive scuffs and dirt but make a denser code.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="preview-col" aria-live="polite">
+        <div class="stage" id="stage">
+          <div id="preview"></div>
+          <button type="button" class="unlock" id="unlock" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            Sign in free to unlock
+          </button>
+          <div class="empty" id="preview-empty" hidden></div>
+          <div class="scanline" id="scanline"></div>
+        </div>
+        <dl class="readout" aria-label="Code details">
+          <div><dt>Version</dt><dd id="r-version">-</dd></div>
+          <div><dt>Grid</dt><dd id="r-grid">-</dd></div>
+          <div><dt>Recovery</dt><dd id="r-ecl">-</dd></div>
+          <div><dt>Quiet zone</dt><dd>4</dd></div>
+        </dl>
+        <p class="payload" id="payload"></p>
+        <div class="ready-banner" id="ready" role="status" hidden></div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="dl-svg">Download SVG</button>
+          <button type="button" class="btn" id="dl-png">Download PNG</button>
+        </div>
+        <p class="hint save-note" id="save-note">Free to download with a free account. SVG stays sharp at any print size.</p>
+      </div>
+    </div>
+  </div>

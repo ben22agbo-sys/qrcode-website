@@ -1,8 +1,12 @@
 // Cloudflare settings. Publishes only the site/ folder as a static website.
+// Pages are served without .html (site/wifi-qr-code.html -> /wifi-qr-code),
+// and unknown addresses get site/404.html.
 {
   "name": "qrcode-website",
   "compatibility_date": "2025-09-01",
   "assets": {
-    "directory": "./site"
+    "directory": "./site",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
   }
 }

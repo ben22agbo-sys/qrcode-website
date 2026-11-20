@@ -1,0 +1,90 @@
+<!--
+{
+  "out": "guides/qr-code-size.html",
+  "url": "/guides/qr-code-size",
+  "kind": "guide",
+  "order": 11,
+  "title": "What Size Should a QR Code Be? Print Size Guide | QR Origin",
+  "headline": "What size should a QR code be? A print size guide",
+  "description": "How big to print a QR code for menus, posters, flyers and signs. A size table by scanning distance, plus what makes a code need more space.",
+  "card_title": "What size should a QR code be?",
+  "card_text": "A print size table by scanning distance, for menus, flyers and posters.",
+  "published": "2026-11-20",
+  "breadcrumbs": [["Home", "/"], ["Guides", "/guides/"], ["QR code print size", "/guides/qr-code-size"]]
+}
+-->
+  <article class="article">
+    <div class="wrap">
+      <header class="article-head">
+        {{crumbs}}
+        <span class="eyebrow">Guide</span>
+        <h1>What size should a QR code be?</h1>
+        <p>The short answer: at least 2 cm wide for something held in the hand, and about a tenth of the scanning distance for anything further away. Here's how to get it right for your print.</p>
+        <span class="article-meta">Published 20 November 2026</span>
+      </header>
+      <div class="article-body prose">
+        <h2>The 10 to 1 rule</h2>
+        <p>A simple rule of thumb that works for most codes: <strong>make the code about one tenth as wide as the distance people will scan it from</strong>. If people stand 2 metres away, print it about 20 cm wide.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Where it's scanned</th><th scope="col">Typical distance</th><th scope="col">Minimum width</th></tr></thead>
+            <tbody>
+              <tr><td>Business card, label, packaging</td><td>Up to 20 cm</td><td>2 cm</td></tr>
+              <tr><td>Flyer, receipt, table card</td><td>30 cm</td><td>3 cm</td></tr>
+              <tr><td>Menu on the table, counter sign</td><td>50 cm</td><td>5 cm</td></tr>
+              <tr><td>Poster on a wall</td><td>1 metre</td><td>10 cm</td></tr>
+              <tr><td>Shop window, door sign</td><td>2 metres</td><td>20 cm</td></tr>
+              <tr><td>Large banner</td><td>5 metres</td><td>50 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Treat these as minimums. Going a little bigger costs nothing and helps older phones, dim rooms and people scanning at an angle.</p>
+
+        <h2>Why the same size doesn't suit every code</h2>
+        <p>A QR code is a grid of small squares called modules. The more information it holds, the more modules it needs. Printed at the same width, a code with more modules has smaller squares, and small squares are harder for a camera to pick out.</p>
+        <p>In the QR Origin generator, the <strong>Grid</strong> number under your code shows how many modules wide it is. Some real examples:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">What the code holds</th><th scope="col">Without logo</th><th scope="col">With logo</th></tr></thead>
+            <tbody>
+              <tr><td>A short link, like <code>https://example.com/menu</code></td><td>25 × 25</td><td>29 × 29</td></tr>
+              <tr><td>A long tracking link, about 80 characters</td><td>37 × 37</td><td>49 × 49</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The long link with a logo has almost twice as many modules across, so each square is about half the size at the same print width. <strong>If your grid is above about 40 × 40, print bigger than the table suggests, or shorten the link.</strong></p>
+
+        <h2>Other things that affect scanning</h2>
+        <ul>
+          <li><strong>The quiet zone.</strong> Every code needs a clear border around it, 4 modules wide. It's included in QR Origin downloads, so don't crop it off or place the code right against other graphics.</li>
+          <li><strong>Contrast.</strong> A dark code on a light background is easiest to read. Pale colours on white or dark codes on dark backgrounds need a bigger print, or won't scan at all.</li>
+          <li><strong>Print quality.</strong> Use the SVG download for print, so edges stay sharp at any size. Stretching a small PNG makes the edges blurry.</li>
+          <li><strong>The surface.</strong> Glossy paper, glass and curved surfaces like bottles reflect light and bend the pattern. Go bigger and test in place.</li>
+        </ul>
+
+        <h2>How small can a QR code be?</h2>
+        <p>For close-up scanning, around 2 cm wide is a practical minimum for a short link. Codes on tiny labels can work smaller, but only with very short content and a sharp print. Whatever the size, test the printed code with a few different phones before printing a large batch.</p>
+
+        <div class="callout">
+          <b>Quick checklist before you print</b>
+          <p>Width is at least a tenth of the scanning distance. The grid is as small as possible, using a short link. The quiet zone is intact. You've scanned a real test print with two or three phones from the distance people will use.</p>
+        </div>
+      </div>
+
+      <div class="cta-band">
+        <div>
+          <b>Make a print-ready QR code</b>
+          <p>Free, with your logo and colours, as a sharp SVG for print.</p>
+        </div>
+        <a class="btn primary" href="/">Make a QR code</a>
+      </div>
+
+      <section class="band" aria-labelledby="more-guides">
+        <div class="band-head">
+          <span class="eyebrow">More guides</span>
+          <h2 id="more-guides">Keep reading.</h2>
+        </div>
+        {{more_guides}}
+      </section>
+    </div>
+  </article>

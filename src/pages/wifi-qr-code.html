@@ -1,0 +1,104 @@
+<!--
+{
+  "out": "wifi-qr-code.html",
+  "url": "/wifi-qr-code",
+  "kind": "tool",
+  "order": 1,
+  "title": "Free Wi-Fi QR Code Generator | QR Origin",
+  "description": "Make a QR code that connects guests to your Wi-Fi in one scan. Add your logo and colours, then download a print-ready SVG or PNG. Free, no watermarks.",
+  "card_title": "Wi-Fi QR code",
+  "card_text": "Guests join your network in one scan, no typing passwords.",
+  "app_name": "QR Origin Wi-Fi QR code generator",
+  "tab": "wifi",
+  "breadcrumbs": [["Home", "/"], ["Wi-Fi QR code", "/wifi-qr-code"]]
+}
+-->
+  <section class="intro">
+    <div class="wrap">
+      <div>
+        {{crumbs}}
+        <span class="eyebrow enter" style="--d:0s">Free Wi-Fi QR code generator</span>
+        <h1 class="enter" style="--d:.08s">A QR code that gets guests <em>onto your Wi-Fi</em>.</h1>
+      </div>
+      <div>
+        <p class="enter" style="--d:.18s">Type your network name and password once. Guests point their camera at the code and their phone offers to join, so nobody has to read out a long password again.</p>
+        <div class="facts enter" style="--d:.26s" aria-label="Key facts">
+          <span>Free, no watermarks</span>
+          <span>Password stays on your device</span>
+          <span>Add your logo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{{generator}}
+
+  <section class="band" id="guide">
+    <div class="wrap">
+      <div class="prose">
+        <h2>How to make a Wi-Fi QR code</h2>
+        <ol class="steps-list">
+          <li><span><strong>Enter your network details.</strong> The Wi-Fi tab is already open. Type the network name exactly as it appears in your phone's Wi-Fi list, including capital letters and spaces, then the password.</span></li>
+          <li><span><strong>Pick the security type.</strong> Choose WPA / WPA2 / WPA3 for almost every modern router. Only choose "No password" if your network is open. If your network doesn't show up in Wi-Fi lists, tick Hidden network.</span></li>
+          <li><span><strong>Make it yours.</strong> Pick a pattern and colours, and add your logo if you like. Colours that are too close together for phones to read are blocked for you.</span></li>
+          <li><span><strong>Download and test it.</strong> On your phone, forget the network first, then scan the code. If it joins, it's ready to print.</span></li>
+        </ol>
+
+        <h2>Where to put it</h2>
+        <p>Anywhere guests sit or wait: a reception desk, a table card, the back of a menu, a frame by the door or inside a holiday let's welcome book. Put a short line next to it, like <strong>"Scan to join our Wi-Fi"</strong>, so people know what it does.</p>
+
+        <h2>Things to know before you print</h2>
+        <ul>
+          <li><strong>The password is inside the code.</strong> Anyone who can see the code can join your network, the same as if they could read the password. For a shop, café or rental, use a separate guest network rather than your main one.</li>
+          <li><strong>Changing your password means a new code.</strong> The details are stored in the pattern itself, so if you change the password, make and print a new code.</li>
+          <li><strong>Special characters are handled for you.</strong> Network names and passwords with symbols like ; : or " are written in the format phones expect, so you can type them as they are.</li>
+        </ul>
+
+        <div class="callout">
+          <b>What's inside a Wi-Fi QR code?</b>
+          <p>It's a short piece of text in a standard format that phones recognise, for example <code>WIFI:T:WPA;S:Cafe Guest;P:flatwhite2026;;</code>. T is the security type, S is the network name and P is the password. You can see exactly what your code holds in the line under the preview.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Wi-Fi QR code questions.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Which phones can join Wi-Fi from a QR code?</summary>
+          <p>Most modern iPhones and Android phones can do it straight from the camera app. Some older Android phones need the "scan QR code" option in their Wi-Fi settings, or a scanner app.</p>
+        </details>
+        <details>
+          <summary>Is my Wi-Fi password sent to QR Origin?</summary>
+          <p>No. Your code is made by your own browser, so the network name and password never leave your device.</p>
+        </details>
+        <details>
+          <summary>The code scans but won't connect. What's wrong?</summary>
+          <p>Usually the network name or password has a small difference, like a capital letter or a space at the end. Check both against your router, and check the security type. Our <a href="/guides/qr-code-not-scanning">QR code troubleshooting guide</a> covers the other common causes.</p>
+        </details>
+        <details>
+          <summary>Does the code ever expire?</summary>
+          <p>No. It keeps working for as long as your network name and password stay the same.</p>
+        </details>
+        <details>
+          <summary>How big should I print it?</summary>
+          <p>At least 3 cm wide for a table card scanned at arm's length, and bigger for a sign people scan from further away. The <a href="/guides/qr-code-size">print size guide</a> has a table for different distances.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="more">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">More QR code types</span>
+        <h2>Need a different kind of code?</h2>
+      </div>
+      {{more_types}}
+    </div>
+  </section>

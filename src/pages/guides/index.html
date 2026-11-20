@@ -1,0 +1,31 @@
+<!--
+{
+  "out": "guides/index.html",
+  "url": "/guides/",
+  "kind": "guides",
+  "order": 10,
+  "title": "QR Code Guides: Size, Scanning and History | QR Origin",
+  "description": "Practical guides to QR codes: how big to print them, why a code won't scan and how to fix it, and where QR codes came from.",
+  "breadcrumbs": [["Home", "/"], ["Guides", "/guides/"]]
+}
+-->
+  <section class="article">
+    <div class="wrap">
+      <header class="article-head">
+        {{crumbs}}
+        <span class="eyebrow">Guides</span>
+        <h1>QR code guides.</h1>
+        <p>Short, practical answers to the questions people ask before they print a QR code, and a little history.</p>
+      </header>
+      {{guides_grid}}
+
+      <section class="band" aria-labelledby="types-head">
+        <div class="band-head">
+          <span class="eyebrow">QR code types</span>
+          <h2 id="types-head">Ready to make one?</h2>
+          <p>Each one opens the generator set up for the job.</p>
+        </div>
+        {{types_grid}}
+      </section>
+    </div>
+  </section>

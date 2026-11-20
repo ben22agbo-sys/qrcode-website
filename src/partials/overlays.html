@@ -1,0 +1,57 @@
+<!-- Phone only: keeps the code in view while you scroll through the options -->
+<div class="dock" id="dock" aria-label="Your code" inert>
+  <div class="dock-thumb" id="dock-thumb"></div>
+  <div class="dock-text">
+    <b>Your code</b>
+    <span id="dock-meta"></span>
+  </div>
+  <div class="dock-actions">
+    <button type="button" class="btn ghost small" id="dock-svg">SVG</button>
+    <button type="button" class="btn primary small" id="dock-png">PNG</button>
+  </div>
+</div>
+
+<dialog class="auth" id="auth" aria-labelledby="auth-title">
+  <form method="dialog" class="auth-close-form"><button class="auth-close" aria-label="Close" value="cancel">×</button></form>
+  <div class="auth-body" id="auth-form-view">
+    <span class="eyebrow">Free account</span>
+    <h2 id="auth-title">Create your free account to download</h2>
+    <p class="auth-sub">It costs nothing, now or later. Your code stays exactly as you made it while you sign in.</p>
+    <div class="auth-notice" id="auth-notice" hidden></div>
+    <button type="button" class="btn google" id="google-btn">
+      <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-or"><span>or</span></div>
+    <form class="auth-email" id="email-form" novalidate>
+      <label for="auth-email-input">Email address</label>
+      <input type="email" id="auth-email-input" placeholder="you@example.com" autocomplete="email" required>
+      <button type="submit" class="btn primary" id="email-btn">Email me a sign-in code</button>
+    </form>
+    <p class="hint error" id="auth-error" hidden></p>
+    <p class="auth-fine">No password needed. We only store your email address.</p>
+  </div>
+  <div class="auth-body" id="auth-sent-view" hidden>
+    <span class="eyebrow">Check your inbox</span>
+    <h2>Enter the code we sent you</h2>
+    <p class="auth-sub">We emailed a code to <b id="auth-sent-to"></b>. Type it here to sign in on this device and keep your design.</p>
+    <form class="auth-email" id="code-form" novalidate>
+      <label for="auth-code-input">Sign-in code</label>
+      <div class="code-row">
+        <input type="text" id="auth-code-input" class="code-input" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]*" placeholder="123456" spellcheck="false">
+        <button type="button" class="btn ghost paste-btn" id="code-paste" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg>
+          Paste
+        </button>
+      </div>
+      <button type="submit" class="btn primary" id="code-btn">Sign in</button>
+    </form>
+    <p class="hint error" id="code-error" hidden></p>
+    <p class="auth-fine">You can also tap the link in the email, but the code keeps you on this device.</p>
+    <div class="auth-row">
+      <button type="button" class="btn ghost small" id="auth-resend">Send a new code</button>
+      <button type="button" class="btn ghost small" id="auth-back">Use a different email</button>
+    </div>
+  </div>
+</dialog>

@@ -2,6 +2,46 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://qrorigin.net/</loc>
-    <lastmod>2026-11-01</lastmod>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/email-qr-code</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/google-review-qr-code</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/guides/</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/guides/history-of-qr-codes</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/guides/qr-code-not-scanning</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/guides/qr-code-size</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/qr-code-for-menu</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/qr-code-with-logo</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/whatsapp-qr-code</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://qrorigin.net/wifi-qr-code</loc>
+    <lastmod>2026-11-20</lastmod>
   </url>
 </urlset>

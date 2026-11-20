@@ -7,41 +7,45 @@ Live at [qrorigin.net](https://qrorigin.net).
 ## What's in here
 
 ```
-site/
-  index.html   the landing page and generator
-  qr.js        the QR code engine (no dependencies)
-test/
-  gen.js       makes test codes with the engine
-  check.py     compares them with a reference library and scans each one
-  logos/       sample logos used when testing logo sizes
-build.py       optional: builds one self-contained file in dist/
+src/
+  pages/        one file per page: a JSON block (title, address, etc.) then the content
+  partials/     shared head, header, footer, generator and sign-in window
+site/           the finished website that Cloudflare publishes (built from src/)
+  qr.js         the QR code engine (no dependencies)
+  assets/       app.css (styles), app.js (generator and sign-in), site.js (menu, animations)
+test/           engine tests against a reference library, plus sample logos
+build.py        builds every page in site/ from src/, and writes site/sitemap.xml
 ```
+
+## Edit or add a page
+
+1. Edit a file in `src/pages`, or copy one to make a new page. Tool pages (like `wifi-qr-code.html`) open the generator on a chosen tab with chosen example values; guides live in `src/pages/guides`.
+2. Run `python3 build.py`. It writes the HTML into `site/` and updates the sitemap, footer links and "QR code types" cards everywhere.
+3. Commit both `src/` and `site/`, then push.
+
+Styles and scripts are edited directly in `site/assets/` and `site/qr.js`. Rebuild after changing them so pages pick up the new version.
+
+Each page gets its own title, description, canonical link, breadcrumbs and structured data from its JSON block.
 
 ## Run it locally
 
-The page loads `qr.js` from the same folder, so serve the `site` folder rather than opening the file directly:
+Pages are served without `.html` on the live site (`/wifi-qr-code`). For the same behaviour locally, run `npx wrangler dev`. A plain file server also works if you add `.html` to addresses yourself:
 
 ```
 cd site
 python3 -m http.server 8000
 ```
 
-Then open http://localhost:8000.
-
 ## Deploy
 
-The `site` folder is the whole website and needs no build step.
-
-The live site runs as a Cloudflare Worker connected to this repo. `wrangler.jsonc` tells Cloudflare to publish only the `site` folder, and every push to `main` deploys automatically.
-
-On Netlify or Vercel instead, set the output (publish) directory to `site` and leave the build command empty.
+The live site runs as a Cloudflare Worker connected to this repo. `wrangler.jsonc` publishes only the `site` folder, serves pages without `.html`, and shows `site/404.html` for unknown addresses. Every push to `main` deploys automatically. There's no build step on Cloudflare, so always run `build.py` before pushing.
 
 ## Turn on sign-in
 
 Downloads stay open until sign-in is connected, so the site never locks people out by accident.
 
 1. Create a free project at supabase.com.
-2. In the project's API settings, copy the Project URL and the anon public key into `AUTH_CONFIG` near the bottom of `site/index.html`. The anon key is designed to be public.
+2. In the project's API settings, copy the Project URL and the anon public key into `AUTH_CONFIG` in `site/assets/app.js`. The anon key is designed to be public.
 3. In the authentication settings, set the Site URL to your live address and add it to the allowed redirect URLs.
 4. For Google sign-in, turn on the Google provider. This needs an OAuth client from Google Cloud.
 5. Before launch, connect your own email sender (for example Resend). Supabase's built-in sender is limited and meant for testing.

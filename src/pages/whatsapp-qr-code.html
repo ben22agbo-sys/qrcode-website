@@ -1,0 +1,151 @@
+<!--
+{
+  "out": "whatsapp-qr-code.html",
+  "url": "/whatsapp-qr-code",
+  "kind": "tool",
+  "order": 5,
+  "title": "WhatsApp QR Code Generator, Free | QR Origin",
+  "description": "Make a QR code that opens a WhatsApp chat with you, with a message ready to send. Enter your number, add your logo and colours, and download for free.",
+  "card_title": "WhatsApp QR code",
+  "card_text": "Opens a chat with you, with a message ready to send.",
+  "app_name": "QR Origin WhatsApp QR code generator",
+  "tab": "link",
+  "fields": { "in-link": "https://wa.me/447700900123?text=Hi%2C%20I'd%20like%20to%20make%20a%20booking" },
+  "breadcrumbs": [["Home", "/"], ["WhatsApp QR code", "/whatsapp-qr-code"]]
+}
+-->
+  <section class="intro">
+    <div class="wrap">
+      <div>
+        {{crumbs}}
+        <span class="eyebrow enter" style="--d:0s">Free WhatsApp QR code generator</span>
+        <h1 class="enter" style="--d:.08s">Let customers message you on WhatsApp <em>with one scan</em>.</h1>
+      </div>
+      <div>
+        <p class="enter" style="--d:.18s">Enter your number and an optional message. Scanning the code opens a WhatsApp chat with you, with the message already typed and ready to send.</p>
+        <div class="facts enter" style="--d:.26s" aria-label="Key facts">
+          <span>Free, no watermarks</span>
+          <span>No saving your number first</span>
+          <span>Add your logo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="builder enter" style="--d:.3s" id="wa-builder">
+      <h2>Build your WhatsApp link</h2>
+      <div class="two-up">
+        <div class="field">
+          <label for="wa-number">Your WhatsApp number, starting with the country code</label>
+          <input type="text" id="wa-number" inputmode="tel" autocomplete="tel" value="44 7700 900123" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="wa-message">Message to fill in (optional)</label>
+          <input type="text" id="wa-message" value="Hi, I'd like to make a booking">
+        </div>
+      </div>
+      <p class="hint" id="wa-hint">The code below updates as you type. The number shown is an example, so replace it with yours.</p>
+    </div>
+  </div>
+
+{{generator}}
+
+  <script>
+  (function () {
+    var num = document.getElementById('wa-number');
+    var msg = document.getElementById('wa-message');
+    var hint = document.getElementById('wa-hint');
+    function update() {
+      // "(0)" is the UK way of showing the 0 you skip when dialling from abroad.
+      var digits = num.value.replace(/\(\s*0\s*\)/g, '').replace(/\D/g, '').replace(/^00/, '');
+      var link = document.getElementById('in-link');
+      hint.classList.remove('error');
+      if (!digits) { hint.textContent = 'Enter your WhatsApp number to build the link.'; hint.classList.add('error'); return; }
+      // UK and Nigerian numbers never keep the 0 after the country code.
+      var kept = digits.match(/^(44|234)0/);
+      if (kept) {
+        hint.textContent = 'Drop the 0 after the country code: ' + kept[1] + ' ' + digits.slice(kept[1].length + 1, kept[1].length + 5) + '..., not ' + kept[1] + ' 0' + digits.slice(kept[1].length + 1, kept[1].length + 5) + '...';
+        hint.classList.add('error');
+        return;
+      }
+      if (digits.charAt(0) === '0') {
+        hint.textContent = 'Start with your country code and drop the first 0 of your number. A UK number 07700 900123 becomes 44 7700 900123.';
+        hint.classList.add('error');
+        return;
+      }
+      var text = msg.value.trim();
+      link.value = 'https://wa.me/' + digits + (text ? '?text=' + encodeURIComponent(text) : '');
+      link.dispatchEvent(new Event('input', { bubbles: true }));
+      hint.textContent = 'Link built: ' + link.value;
+    }
+    num.addEventListener('input', update);
+    msg.addEventListener('input', update);
+  })();
+  </script>
+
+  <section class="band" id="guide">
+    <div class="wrap">
+      <div class="prose">
+        <h2>How a WhatsApp QR code works</h2>
+        <p>WhatsApp has an official link format called click to chat. It looks like <code>https://wa.me/447700900123</code>, with your full number at the end. Opening it starts a chat with you, without anyone having to save your number first.</p>
+        <p>You can add a message too, like <code>?text=Hi</code> at the end. It appears in the person's message box ready to send, and they can edit it first. Nothing is sent until they tap send.</p>
+
+        <h2>Writing your number the right way</h2>
+        <ul>
+          <li><strong>Start with your country code</strong>, like 44 for the UK, 1 for the US and Canada, or 234 for Nigeria.</li>
+          <li><strong>Drop the first 0</strong> of your local number. A UK mobile 07700 900123 becomes 447700900123.</li>
+          <li><strong>Leave out</strong> the plus sign, spaces, brackets and dashes. The helper above does this for you.</li>
+        </ul>
+
+        <h2>Ideas for using it</h2>
+        <ul>
+          <li><strong>Bookings and orders:</strong> a message like "Hi, I'd like to book a table for" saves customers typing.</li>
+          <li><strong>Shop windows and flyers:</strong> people can ask a question even when you're closed.</li>
+          <li><strong>Packaging and receipts:</strong> an easy route for customer service or reorders.</li>
+        </ul>
+
+        <div class="callout">
+          <b>Use a number you're happy to share</b>
+          <p>Your number is visible to anyone who scans the code. If you run a business, WhatsApp Business lets you keep your customer chats separate from your personal ones.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">Questions</span>
+        <h2>WhatsApp QR code questions.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Does the message send automatically?</summary>
+          <p>No. It's typed into the chat box for the customer, who can change it and chooses when to send.</p>
+        </details>
+        <details>
+          <summary>What if someone doesn't have WhatsApp?</summary>
+          <p>The link opens a WhatsApp web page instead, which asks them to download the app or use WhatsApp on the web.</p>
+        </details>
+        <details>
+          <summary>Can I change the message after printing?</summary>
+          <p>No. The message is part of the link inside the code, so a different message means a new code.</p>
+        </details>
+        <details>
+          <summary>Does it work with WhatsApp Business?</summary>
+          <p>Yes. The same link format works for WhatsApp and WhatsApp Business numbers.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="more">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">More QR code types</span>
+        <h2>Need a different kind of code?</h2>
+      </div>
+      {{more_types}}
+    </div>
+  </section>

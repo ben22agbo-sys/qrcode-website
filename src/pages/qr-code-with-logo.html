@@ -1,0 +1,116 @@
+<!--
+{
+  "out": "qr-code-with-logo.html",
+  "url": "/qr-code-with-logo",
+  "kind": "tool",
+  "order": 2,
+  "title": "QR Code with Logo: Free Generator | QR Origin",
+  "description": "Add your logo to a QR code for free. Upload a PNG, JPG or SVG, pick your colours and download a code that still scans. Size limits tested, no watermarks.",
+  "card_title": "QR code with logo",
+  "card_text": "Your logo in the middle, sized so the code still scans.",
+  "app_name": "QR Origin QR code with logo generator",
+  "tab": "link",
+  "fields": { "in-link": "https://example.com" },
+  "breadcrumbs": [["Home", "/"], ["QR code with logo", "/qr-code-with-logo"]]
+}
+-->
+  <section class="intro">
+    <div class="wrap">
+      <div>
+        {{crumbs}}
+        <span class="eyebrow enter" style="--d:0s">Free QR code generator with logo</span>
+        <h1 class="enter" style="--d:.08s">Put your logo in a QR code and <em>keep it scannable</em>.</h1>
+      </div>
+      <div>
+        <p class="enter" style="--d:.18s">Upload your logo, pick a size and colours, and download a branded code. The limits are set from real scanning tests, so you can't accidentally make a code that won't read.</p>
+        <div class="facts enter" style="--d:.26s" aria-label="Key facts">
+          <span>Logo up to 25%</span>
+          <span>PNG, JPG, SVG, WebP</span>
+          <span>No watermarks</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{{generator}}
+
+  <section class="band" id="guide">
+    <div class="wrap">
+      <div class="prose">
+        <h2>How to add a logo to a QR code</h2>
+        <ol class="steps-list">
+          <li><span><strong>Add your link.</strong> Type the website or page the code should open. Shorter links make simpler codes, which leaves more room for a logo.</span></li>
+          <li><span><strong>Upload your logo.</strong> Scroll to Logo and upload a PNG, JPG, SVG or WebP up to 2 MB, or drag it onto the box.</span></li>
+          <li><span><strong>Set the size and clear space.</strong> Use the slider to size it between 10% and 25% of the code's width, then choose a square or circle of clear space around it.</span></li>
+          <li><span><strong>Pick your colours, then download.</strong> SVG stays sharp at any print size. PNG is ready for screens, slides and documents.</span></li>
+        </ol>
+
+        <h2>Why a code with a logo still scans</h2>
+        <p>Every QR code carries spare data called error correction, so a phone can rebuild parts of the pattern that are dirty, torn or covered. A logo covers part of the pattern on purpose and relies on that spare data to fill the gap.</p>
+        <p>That's why adding a logo switches error correction to the highest level, called High, which can recover about 30% of the code. It also makes the pattern a little denser, so a code with a logo has more squares than the same link without one.</p>
+
+        <h2>How big can the logo be?</h2>
+        <p>We tested this by scanning codes with three different logos, three link lengths and every pattern, using two different decoders, including blurred low-resolution copies made to look like a phone camera.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Logo width</th><th scope="col">Result in our tests</th></tr></thead>
+            <tbody>
+              <tr><td>Up to 25%</td><td>Every combination scanned</td></tr>
+              <tr><td>28%</td><td>Smaller codes started to fail</td></tr>
+              <tr><td>30% and above</td><td>Not reliable, so the slider stops at 25%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A size of around 20% is a good balance for most logos. Go towards 25% only if your logo is simple and you've tested the printed code.</p>
+
+        <h2>What makes a logo work well</h2>
+        <ul>
+          <li><strong>Simple shapes.</strong> An icon or monogram reads better than a full logo with small text.</li>
+          <li><strong>Square or round.</strong> Long, thin logos get shrunk to fit, so a square version of your mark works best.</li>
+          <li><strong>Transparent background.</strong> A PNG with transparency or an SVG blends into the clear space instead of showing a white box.</li>
+          <li><strong>Strong contrast.</strong> Keep the code itself dark on a light background. Colours that are too close together are blocked for you.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Logo QR code questions.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is my logo uploaded to your servers?</summary>
+          <p>No. Your logo is placed into the code by your own browser and never leaves your device.</p>
+        </details>
+        <details>
+          <summary>Why can't I change the error correction when I add a logo?</summary>
+          <p>Lower levels have less spare data to rebuild the part the logo covers. In our tests they started failing with larger logos, so the level stays on High while a logo is added.</p>
+        </details>
+        <details>
+          <summary>Will the logo be sharp when I print it?</summary>
+          <p>Download the SVG for print. If you upload your logo as an SVG too, the whole code stays sharp at any size. Large photos are scaled down to 512 pixels, which is plenty for print at normal QR code sizes.</p>
+        </details>
+        <details>
+          <summary>Does adding a logo cost anything or add a watermark?</summary>
+          <p>No. Logos, colours and every pattern are free, and there's no watermark on your code.</p>
+        </details>
+        <details>
+          <summary>My logo code won't scan. What should I try?</summary>
+          <p>Make the logo smaller, shorten the link, and check the code colour is dark against a light background. The <a href="/guides/qr-code-not-scanning">troubleshooting guide</a> has more fixes.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="more">
+    <div class="wrap">
+      <div class="band-head">
+        <span class="eyebrow">More QR code types</span>
+        <h2>Need a different kind of code?</h2>
+      </div>
+      {{more_types}}
+    </div>
+  </section>
